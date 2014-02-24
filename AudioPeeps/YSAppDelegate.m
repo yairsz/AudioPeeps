@@ -8,11 +8,18 @@
 
 #import "YSAppDelegate.h"
 
+
 @implementation YSAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    // Insert code here to initialize your application
+
+    self.audioVC = [[YSAudioVC alloc] initWithNibName:@"YSAudioVC" bundle:nil];
+    
+    [self.window.contentView addSubview:self.audioVC.view];
+    self.audioVC.view.frame = ((NSView*)self.window.contentView).bounds;
+    
 }
+
 
 @end
