@@ -7,7 +7,8 @@
 //
 
 #import "YSAudioVC.h"
-
+#define IN_TIME CMTimeMake(10, 1)
+#define OUT_TIME CMTimeMake(20, 1)
 
 @interface YSAudioVC ()
 {
@@ -76,6 +77,7 @@
 }
 
 - (IBAction)playPressed:(id)sender {
+    
     [self.player play];
 }
 
@@ -85,15 +87,19 @@
     
     AVMutableCompositionTrack * compositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
     
-    [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
+    [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, IN_TIME) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
+    [compositionTrack insertTimeRange:CMTimeRangeMake(OUT_TIME, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
     
-    CMTimeMake
+    
+    [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
 }
 
-//- (IBAction)setOutPressed:(id)sender {
-//}
+- (IBAction)setOutPressed:(id)sender {
+    [self.player pause];
+}
 
 - (IBAction)trimPressed:(id)sender {
+
 }
 
 @end
