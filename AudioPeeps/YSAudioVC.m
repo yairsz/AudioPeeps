@@ -7,8 +7,8 @@
 //
 
 #import "YSAudioVC.h"
-#define IN_TIME CMTimeMake(10, 1)
-#define OUT_TIME CMTimeMake(20, 1)
+#define IN_TIME CMTimeMake(2, 1)
+#define OUT_TIME CMTimeMake(5, 1)
 
 @interface YSAudioVC ()
 {
@@ -67,13 +67,13 @@
     
     self.asset = [[AVURLAsset alloc] initWithURL:soundFileURL options:options];
     
-    AVPlayerItem * item = [AVPlayerItem playerItemWithAsset:self.asset];
+    AVAssetTrack * audioAssetTrack = [[self.asset tracksWithMediaType:AVMediaTypeAudio] lastObject];
     
-    [self.player replaceCurrentItemWithPlayerItem:item];
+    AVMutableCompositionTrack * compositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
     
+    [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
     
-    
-    NSLog(@"%@",soundFileURL);
+    [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
 }
 
 - (IBAction)playPressed:(id)sender {
@@ -83,19 +83,15 @@
 
 - (IBAction)setInPressed:(id)sender {
     
-    AVAssetTrack * audioAssetTrack = [[self.asset tracksWithMediaType:AVMediaTypeAudio] lastObject];
+    AVMutableCompositionTrack * compositionTrack = [[self.composition tracks] lastObject];
+
+    [compositionTrack removeTimeRange:CMTimeRangeMake(IN_TIME, OUT_TIME)];
     
-    AVMutableCompositionTrack * compositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-    
-    [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, IN_TIME) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
-    [compositionTrack insertTimeRange:CMTimeRangeMake(OUT_TIME, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
-    
-    
-    [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
 }
 
 - (IBAction)setOutPressed:(id)sender {
     [self.player pause];
+    [self.player seekToTime:kCMTimeZero];
 }
 
 - (IBAction)trimPressed:(id)sender {
