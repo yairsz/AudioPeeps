@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="YSAudioVC">
+        <customObject id="-2" userLabel="File's Owner" customClass="PSAudioVC">
             <connections>
                 <outlet property="setInButton" destination="euZ-Ez-jCZ" id="VOd-hx-U0A"/>
                 <outlet property="setOutButton" destination="zPA-gH-5Li" id="bja-4r-3cJ"/>
@@ -20,40 +20,40 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="euZ-Ez-jCZ">
-                    <rect key="frame" x="14" y="119" width="113" height="32"/>
+                    <rect key="frame" x="170" y="224" width="141" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="Select Time" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2Nd-Wu-HPL">
+                    <buttonCell key="cell" type="push" title="Delete Selection" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2Nd-Wu-HPL">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="setInPressed:" target="-2" id="cDM-uk-grA"/>
+                        <action selector="deletePressed:" target="-2" id="0jR-SL-MAB"/>
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zPA-gH-5Li">
-                    <rect key="frame" x="384" y="119" width="73" height="32"/>
+                    <rect key="frame" x="83" y="191" width="69" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="STOP" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Oal-q4-lla">
+                    <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Oal-q4-lla">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="setOutPressed:" target="-2" id="l7S-1D-DnF"/>
+                        <action selector="stopPressed:" target="-2" id="342-gJ-kHu"/>
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MxF-2Q-LI9">
-                    <rect key="frame" x="199" y="13" width="70" height="32"/>
+                    <rect key="frame" x="379" y="224" width="87" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="Trim" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EOb-bu-bvo">
+                    <buttonCell key="cell" type="push" title="Ecsport" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EOb-bu-bvo">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="trimPressed:" target="-2" id="Dxf-Pj-M1R"/>
+                        <action selector="export:" target="-2" id="1JX-Ux-lj5"/>
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h01-eZ-2y1">
-                    <rect key="frame" x="199" y="217" width="65" height="32"/>
+                    <rect key="frame" x="85" y="224" width="65" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="push" title="Play" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="qxg-Vc-vJK">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -64,7 +64,7 @@
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qjD-c2-rgK">
-                    <rect key="frame" x="384" y="217" width="71" height="32"/>
+                    <rect key="frame" x="14" y="224" width="71" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="push" title="Load" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HP2-kI-JIi">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -74,6 +74,21 @@
                         <action selector="loadPressed:" target="-2" id="RnO-iu-7hz"/>
                     </connections>
                 </button>
+                <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KwC-fD-X9W">
+                    <rect key="frame" x="397" y="195" width="75" height="26"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <popUpButtonCell key="cell" type="push" title="aif" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="GKq-By-8rC" id="tSh-TO-1JG">
+                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                        <menu key="menu" title="OtherViews" id="ki3-mB-I0N">
+                            <items>
+                                <menuItem title="mp3" id="FQv-RF-x9X"/>
+                                <menuItem title="aac" id="eA8-V1-76o"/>
+                                <menuItem title="aif" state="on" id="GKq-By-8rC"/>
+                            </items>
+                        </menu>
+                    </popUpButtonCell>
+                </popUpButton>
             </subviews>
         </customView>
     </objects>

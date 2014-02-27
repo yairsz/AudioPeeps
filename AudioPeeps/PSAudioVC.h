@@ -9,7 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>
+#import <AppKit/AppKit.h>
 
-@interface YSAudioVC : NSViewController
+@interface PSAudioVC : NSViewController
 
 @end

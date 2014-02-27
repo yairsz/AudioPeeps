@@ -18,10 +18,10 @@
 		B00AF46618BAB8C500ADD426 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00AF44518BAB8C500ADD426 /* Cocoa.framework */; };
 		B00AF46E18BAB8C500ADD426 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B00AF46C18BAB8C500ADD426 /* InfoPlist.strings */; };
 		B00AF47018BAB8C500ADD426 /* AudioPeepsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF46F18BAB8C500ADD426 /* AudioPeepsTests.m */; };
-		B00AF47B18BAB90000ADD426 /* YSAudioEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF47A18BAB90000ADD426 /* YSAudioEditor.m */; };
+		B00AF47B18BAB90000ADD426 /* PSAudioEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF47A18BAB90000ADD426 /* PSAudioEditor.m */; };
 		B00AF47D18BABA4C00ADD426 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00AF47C18BABA4C00ADD426 /* AVFoundation.framework */; };
-		B00AF49518BACF8800ADD426 /* YSAudioVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF49318BACF8800ADD426 /* YSAudioVC.m */; };
-		B00AF49618BACF8800ADD426 /* YSAudioVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B00AF49418BACF8800ADD426 /* YSAudioVC.xib */; };
+		B00AF49518BACF8800ADD426 /* PSAudioVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF49318BACF8800ADD426 /* PSAudioVC.m */; };
+		B00AF49618BACF8800ADD426 /* PSAudioVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B00AF49418BACF8800ADD426 /* PSAudioVC.xib */; };
 		B00AF49818BAEE6C00ADD426 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00AF49718BAEE6C00ADD426 /* CoreMedia.framework */; };
 /* End PBXBuildFile section */
 
@@ -55,13 +55,14 @@
 		B00AF46B18BAB8C500ADD426 /* AudioPeepsTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AudioPeepsTests-Info.plist"; sourceTree = "<group>"; };
 		B00AF46D18BAB8C500ADD426 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B00AF46F18BAB8C500ADD426 /* AudioPeepsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioPeepsTests.m; sourceTree = "<group>"; };
-		B00AF47918BAB90000ADD426 /* YSAudioEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YSAudioEditor.h; sourceTree = "<group>"; };
-		B00AF47A18BAB90000ADD426 /* YSAudioEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YSAudioEditor.m; sourceTree = "<group>"; };
+		B00AF47918BAB90000ADD426 /* PSAudioEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSAudioEditor.h; sourceTree = "<group>"; };
+		B00AF47A18BAB90000ADD426 /* PSAudioEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSAudioEditor.m; sourceTree = "<group>"; };
 		B00AF47C18BABA4C00ADD426 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		B00AF49218BACF8800ADD426 /* YSAudioVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YSAudioVC.h; sourceTree = "<group>"; };
-		B00AF49318BACF8800ADD426 /* YSAudioVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YSAudioVC.m; sourceTree = "<group>"; };
-		B00AF49418BACF8800ADD426 /* YSAudioVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = YSAudioVC.xib; sourceTree = "<group>"; };
+		B00AF49218BACF8800ADD426 /* PSAudioVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSAudioVC.h; sourceTree = "<group>"; };
+		B00AF49318BACF8800ADD426 /* PSAudioVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSAudioVC.m; sourceTree = "<group>"; };
+		B00AF49418BACF8800ADD426 /* PSAudioVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PSAudioVC.xib; sourceTree = "<group>"; };
 		B00AF49718BAEE6C00ADD426 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		B02319B418BED87D00E2F03C /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,11 +132,12 @@
 		B00AF44B18BAB8C500ADD426 /* AudioPeeps */ = {
 			isa = PBXGroup;
 			children = (
-				B00AF49218BACF8800ADD426 /* YSAudioVC.h */,
-				B00AF49318BACF8800ADD426 /* YSAudioVC.m */,
-				B00AF49418BACF8800ADD426 /* YSAudioVC.xib */,
-				B00AF47918BAB90000ADD426 /* YSAudioEditor.h */,
-				B00AF47A18BAB90000ADD426 /* YSAudioEditor.m */,
+				B00AF49218BACF8800ADD426 /* PSAudioVC.h */,
+				B00AF49318BACF8800ADD426 /* PSAudioVC.m */,
+				B02319B418BED87D00E2F03C /* Constants.h */,
+				B00AF49418BACF8800ADD426 /* PSAudioVC.xib */,
+				B00AF47918BAB90000ADD426 /* PSAudioEditor.h */,
+				B00AF47A18BAB90000ADD426 /* PSAudioEditor.m */,
 				B00AF45718BAB8C500ADD426 /* YSAppDelegate.h */,
 				B00AF45818BAB8C500ADD426 /* YSAppDelegate.m */,
 				B00AF45A18BAB8C500ADD426 /* MainMenu.xib */,
@@ -253,7 +255,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00AF45018BAB8C500ADD426 /* InfoPlist.strings in Resources */,
-				B00AF49618BACF8800ADD426 /* YSAudioVC.xib in Resources */,
+				B00AF49618BACF8800ADD426 /* PSAudioVC.xib in Resources */,
 				B00AF45E18BAB8C500ADD426 /* Images.xcassets in Resources */,
 				B00AF45618BAB8C500ADD426 /* Credits.rtf in Resources */,
 				B00AF45C18BAB8C500ADD426 /* MainMenu.xib in Resources */,
@@ -276,8 +278,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00AF45918BAB8C500ADD426 /* YSAppDelegate.m in Sources */,
-				B00AF47B18BAB90000ADD426 /* YSAudioEditor.m in Sources */,
-				B00AF49518BACF8800ADD426 /* YSAudioVC.m in Sources */,
+				B00AF47B18BAB90000ADD426 /* PSAudioEditor.m in Sources */,
+				B00AF49518BACF8800ADD426 /* PSAudioVC.m in Sources */,
 				B00AF45218BAB8C500ADD426 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -489,6 +491,7 @@
 				B00AF47518BAB8C500ADD426 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B00AF47618BAB8C500ADD426 /* Build configuration list for PBXNativeTarget "AudioPeepsTests" */ = {
 			isa = XCConfigurationList;
@@ -497,6 +500,7 @@
 				B00AF47818BAB8C500ADD426 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

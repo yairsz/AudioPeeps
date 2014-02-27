@@ -14,7 +14,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 
-    self.audioVC = [[YSAudioVC alloc] initWithNibName:@"YSAudioVC" bundle:nil];
+    self.audioVC = [[PSAudioVC alloc] initWithNibName:@"PSAudioVC" bundle:nil];
     
     [self.window.contentView addSubview:self.audioVC.view];
     self.audioVC.view.frame = ((NSView*)self.window.contentView).bounds;

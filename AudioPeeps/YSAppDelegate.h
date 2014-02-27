@@ -7,13 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "YSAudioVC.h"
+#import "PSAudioVC.h"
 
 @interface YSAppDelegate : NSObject <NSApplicationDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
 @property (nonatomic) NSWindow * audioWindow;
-@property (nonatomic) YSAudioVC * audioVC;
+@property (nonatomic) PSAudioVC * audioVC;
 
 
 
