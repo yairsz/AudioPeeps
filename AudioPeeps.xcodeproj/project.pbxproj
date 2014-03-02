@@ -23,6 +23,7 @@
 		B00AF49518BACF8800ADD426 /* PSAudioVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF49318BACF8800ADD426 /* PSAudioVC.m */; };
 		B00AF49618BACF8800ADD426 /* PSAudioVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B00AF49418BACF8800ADD426 /* PSAudioVC.xib */; };
 		B00AF49818BAEE6C00ADD426 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00AF49718BAEE6C00ADD426 /* CoreMedia.framework */; };
+		B0CC6D7418C2B6BD009ED340 /* YSAudioExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = B0CC6D7318C2B6BD009ED340 /* YSAudioExporter.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,8 @@
 		B00AF49418BACF8800ADD426 /* PSAudioVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PSAudioVC.xib; sourceTree = "<group>"; };
 		B00AF49718BAEE6C00ADD426 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		B02319B418BED87D00E2F03C /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		B0CC6D7218C2B6BD009ED340 /* YSAudioExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YSAudioExporter.h; sourceTree = "<group>"; };
+		B0CC6D7318C2B6BD009ED340 /* YSAudioExporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YSAudioExporter.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +141,8 @@
 				B00AF49418BACF8800ADD426 /* PSAudioVC.xib */,
 				B00AF47918BAB90000ADD426 /* PSAudioEditor.h */,
 				B00AF47A18BAB90000ADD426 /* PSAudioEditor.m */,
+				B0CC6D7218C2B6BD009ED340 /* YSAudioExporter.h */,
+				B0CC6D7318C2B6BD009ED340 /* YSAudioExporter.m */,
 				B00AF45718BAB8C500ADD426 /* YSAppDelegate.h */,
 				B00AF45818BAB8C500ADD426 /* YSAppDelegate.m */,
 				B00AF45A18BAB8C500ADD426 /* MainMenu.xib */,
@@ -281,6 +286,7 @@
 				B00AF47B18BAB90000ADD426 /* PSAudioEditor.m in Sources */,
 				B00AF49518BACF8800ADD426 /* PSAudioVC.m in Sources */,
 				B00AF45218BAB8C500ADD426 /* main.m in Sources */,
+				B0CC6D7418C2B6BD009ED340 /* YSAudioExporter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
