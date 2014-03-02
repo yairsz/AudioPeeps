@@ -8,6 +8,7 @@
 
 #import "PSAudioVC.h"
 #import "PSAudioEditor.h"
+#import "PSAudioExporter.h"
 #import "Constants.h"
 #define IN_TIME 0.1f
 #define OUT_TIME 0.2f
@@ -20,6 +21,7 @@
 @property (weak,nonatomic) IBOutlet NSButton * trimButton;
 @property (nonatomic) int fileType;
 @property (strong, nonatomic) PSAudioEditor * audioEditor;
+@property (strong, nonatomic) PSAudioExporter * audioExporter;
 
 @end
 
@@ -70,7 +72,10 @@
 
 - (IBAction)export:(id)sender {
     
-    [self.audioEditor exportAudio:self.fileType];
+    NSURL * URL = [NSURL fileURLWithPath:[[self docsPath] stringByAppendingPathComponent:@"exportAudio.m4a"]];
+    self.audioExporter = [[PSAudioExporter alloc] initWithAsset:self.audioEditor.composition
+                                                         andURL:URL
+                                                    andFileType:AVFileTypeAppleM4A];
 }
 
 

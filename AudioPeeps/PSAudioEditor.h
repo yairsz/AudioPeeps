@@ -11,10 +11,12 @@
 
 @interface PSAudioEditor : NSObject
 
+@property (strong, nonatomic) AVMutableComposition * composition;
+
 - (void) play;
 - (void) loadFile: (NSURL *) fileURL;
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
-- (void) exportAudio:(int)fileFormat;
+//- (void) exportAudio:(int)fileFormat;
 - (void) seekToTime:(float)seekTime;
 - (void) pause;
 - (void) stop;

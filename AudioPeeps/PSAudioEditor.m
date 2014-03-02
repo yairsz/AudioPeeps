@@ -16,7 +16,7 @@
 
 @property (strong, nonatomic) AVURLAsset * asset;
 @property (strong, nonatomic) AVPlayer * player;
-@property (strong, nonatomic) AVMutableComposition * composition;
+
 
 @end
 
@@ -99,97 +99,93 @@
     [compositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
 }
 
-- (void) exportAudio:(int)fileFormat
-{
-    AVAssetExportSession * export = [AVAssetExportSession exportSessionWithAsset:self.composition presetName:AVAssetExportPresetAppleM4A];
-    
-    
-    NSString *fileExtension;
-    switch (fileFormat) {
-        case PSAudioFileFormatMP3:
-            export.outputFileType = AVFileTypeMPEGLayer3;
-            fileExtension = @"mp3";
-            break;
-        case PSAudioFileFormatAAC:
-            export.outputFileType = AVFileTypeAppleM4A;
-            fileExtension = @"mp4";
-            break;
-        case PSAudioFileFormatAIF:
-            export.outputFileType = AVFileTypeAIFF;
-            fileExtension = @"aif";
-            break;
-    }
-    NSString *pathComponentString = [NSString stringWithFormat:@"exportFile.%@", fileExtension];
-    
-    NSFileManager *manager = [NSFileManager defaultManager];
-    [manager createDirectoryAtPath:[self docsPath] withIntermediateDirectories:YES attributes:nil error:nil];
-    NSString * path =[[self docsPath] stringByAppendingPathComponent:pathComponentString];
-    // Remove Existing File
-    [manager removeItemAtPath:path error:nil];
-    
-    export.outputURL = [NSURL fileURLWithPath:path];
-    export.timeRange = CMTimeRangeMake(kCMTimeZero, self.composition.duration);
-    
-    NSLog(@"%@",export.outputURL);
-    
-    [export exportAsynchronouslyWithCompletionHandler:^{
-        long exportStatus = export.status;
-        
-        switch (exportStatus) {
-                
-            case AVAssetExportSessionStatusFailed: {
-                
-                NSDictionary *errorInfo = export.error.userInfo;
-                
-                NSLog (@"AVAssetExportSessionStatusFailed: %@", errorInfo);
-                break;
-            }
-                
-            case AVAssetExportSessionStatusCompleted: {
-                
-                NSLog (@"AVAssetExportSessionStatusCompleted");
-                NSSound *sound = [NSSound soundNamed:@"Sosumi"];
-                [sound play];
-                break;
-            }
-                
-            case AVAssetExportSessionStatusUnknown: { NSLog (@"AVAssetExportSessionStatusUnknown");
-                break;
-            }
-            case AVAssetExportSessionStatusExporting: { NSLog (@"AVAssetExportSessionStatusExporting");
-                break;
-            }
-                
-            case AVAssetExportSessionStatusCancelled: { NSLog (@"AVAssetExportSessionStatusCancelled");
-                
-                NSLog(@"Cancellated");
-                break;
-            }
-                
-            case AVAssetExportSessionStatusWaiting: {
-                NSLog (@"AVAssetExportSessionStatusWaiting");
-                break;
-            }
-                
-            default:
-            {
-                NSLog (@"didn't get export status");
-                break;
-            }
-        }
-        
-        
-        
-    }];
+//- (void) exportAudio:(int)fileFormat
+//
+//{
+//    AVAssetExportSession * export = [AVAssetExportSession exportSessionWithAsset:self.composition presetName:AVAssetExportPresetAppleM4A];
+//    
+//    
+//    NSString *fileExtension;
+//    switch (fileFormat) {
+//        case PSAudioFileFormatMP3:
+//            export.outputFileType = AVFileTypeMPEGLayer3;
+//            fileExtension = @"mp3";
+//            break;
+//        case PSAudioFileFormatAAC:
+//            export.outputFileType = AVFileTypeAppleM4A;
+//            fileExtension = @"mp4";
+//            break;
+//        case PSAudioFileFormatAIF:
+//            export.outputFileType = AVFileTypeAIFF;
+//            fileExtension = @"aif";
+//            break;
+//    }
+//    NSString *pathComponentString = [NSString stringWithFormat:@"exportFile.%@", fileExtension];
+//    
+//    NSFileManager *manager = [NSFileManager defaultManager];
+//    [manager createDirectoryAtPath:[self docsPath] withIntermediateDirectories:YES attributes:nil error:nil];
+//    NSString * path =[[self docsPath] stringByAppendingPathComponent:pathComponentString];
+//    // Remove Existing File
+//    [manager removeItemAtPath:path error:nil];
+//    
+//    export.outputURL = [NSURL fileURLWithPath:path];
+//    export.timeRange = CMTimeRangeMake(kCMTimeZero, self.composition.duration);
+//    
+//    NSLog(@"%@",export.outputURL);
+//    
+//    [export exportAsynchronouslyWithCompletionHandler:^{
+//        long exportStatus = export.status;
+//        
+//        switch (exportStatus) {
+//                
+//            case AVAssetExportSessionStatusFailed: {
+//                
+//                NSDictionary *errorInfo = export.error.userInfo;
+//                
+//                NSLog (@"AVAssetExportSessionStatusFailed: %@", errorInfo);
+//                break;
+//            }
+//                
+//            case AVAssetExportSessionStatusCompleted: {
+//                
+//                NSLog (@"AVAssetExportSessionStatusCompleted");
+//                NSSound *sound = [NSSound soundNamed:@"Sosumi"];
+//                [sound play];
+//                break;
+//            }
+//                
+//            case AVAssetExportSessionStatusUnknown: { NSLog (@"AVAssetExportSessionStatusUnknown");
+//                break;
+//            }
+//            case AVAssetExportSessionStatusExporting: { NSLog (@"AVAssetExportSessionStatusExporting");
+//                break;
+//            }
+//                
+//            case AVAssetExportSessionStatusCancelled: { NSLog (@"AVAssetExportSessionStatusCancelled");
+//                
+//                NSLog(@"Cancellated");
+//                break;
+//            }
+//                
+//            case AVAssetExportSessionStatusWaiting: {
+//                NSLog (@"AVAssetExportSessionStatusWaiting");
+//                break;
+//            }
+//                
+//            default:
+//            {
+//                NSLog (@"didn't get export status");
+//                break;
+//            }
+//        }
+//        
+//        
+//        
+//    }];
+//
+//}
 
-}
 
-- (NSString *) docsPath
-{
-    NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString * path = dirPaths[0];
-    return [path stringByAppendingPathComponent:@"AudioPeeps"];
-}
 
 
 
