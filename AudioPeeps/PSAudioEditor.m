@@ -16,6 +16,8 @@
 
 @property (strong, nonatomic) AVURLAsset * asset;
 @property (strong, nonatomic) AVPlayer * player;
+@property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
+@property (nonatomic) CMTime duration;
 
 
 @end
@@ -29,6 +31,9 @@
         
         NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
         _asset = [[AVURLAsset alloc] initWithURL:URL options:options];
+        
+        
+        
     }
     
     return self;
@@ -38,7 +43,19 @@
 {
     if (!_player) {
         _player = [[AVPlayer alloc] init];
+        self.timeUpdateQueue = dispatch_queue_create([@"AudioEditorTimeUpdatesQueue" UTF8String], NULL);
+        __weak PSAudioEditor * weakSelf = self;
+        [_player addPeriodicTimeObserverForInterval:CMTimeMake(1,20)
+                                              queue:self.timeUpdateQueue
+                                         usingBlock:^(CMTime time) {
+                                             float durSeconds = CMTimeGetSeconds(weakSelf.duration);
+                                             float currSeconds = CMTimeGetSeconds(time);
+                                             float value = 1/durSeconds * currSeconds;
+                                             NSString * timeString = [weakSelf stringFromTime:time];
+                                             [weakSelf.delegate updateCurrentTime:timeString andFloat:value];
+                                         }];
     }
+    
     return _player;
 }
 
@@ -52,6 +69,7 @@
 
 - (void) play
 {
+    
    [self.player play]; 
 }
 
@@ -73,8 +91,9 @@
 }
 
 
-- (void) loadFile: (NSURL *) fileURL
+- (void) loadFile: (NSURL *) fileURL completion:(void (^)(BOOL))completion
 {
+    self.composition = nil;
     
     NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
     
@@ -87,6 +106,9 @@
     [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
     
     [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
+    [self updateObservers];
+    
+    completion(YES);
 }
 
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
@@ -97,96 +119,48 @@
     CMTime outTime = CMTimeMake(self.composition.duration.value * punchOut, self.composition.duration.timescale);
     
     [compositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
+    [self updateObservers];
 }
 
-//- (void) exportAudio:(int)fileFormat
-//
-//{
-//    AVAssetExportSession * export = [AVAssetExportSession exportSessionWithAsset:self.composition presetName:AVAssetExportPresetAppleM4A];
-//    
-//    
-//    NSString *fileExtension;
-//    switch (fileFormat) {
-//        case PSAudioFileFormatMP3:
-//            export.outputFileType = AVFileTypeMPEGLayer3;
-//            fileExtension = @"mp3";
-//            break;
-//        case PSAudioFileFormatAAC:
-//            export.outputFileType = AVFileTypeAppleM4A;
-//            fileExtension = @"mp4";
-//            break;
-//        case PSAudioFileFormatAIF:
-//            export.outputFileType = AVFileTypeAIFF;
-//            fileExtension = @"aif";
-//            break;
-//    }
-//    NSString *pathComponentString = [NSString stringWithFormat:@"exportFile.%@", fileExtension];
-//    
-//    NSFileManager *manager = [NSFileManager defaultManager];
-//    [manager createDirectoryAtPath:[self docsPath] withIntermediateDirectories:YES attributes:nil error:nil];
-//    NSString * path =[[self docsPath] stringByAppendingPathComponent:pathComponentString];
-//    // Remove Existing File
-//    [manager removeItemAtPath:path error:nil];
-//    
-//    export.outputURL = [NSURL fileURLWithPath:path];
-//    export.timeRange = CMTimeRangeMake(kCMTimeZero, self.composition.duration);
-//    
-//    NSLog(@"%@",export.outputURL);
-//    
-//    [export exportAsynchronouslyWithCompletionHandler:^{
-//        long exportStatus = export.status;
-//        
-//        switch (exportStatus) {
-//                
-//            case AVAssetExportSessionStatusFailed: {
-//                
-//                NSDictionary *errorInfo = export.error.userInfo;
-//                
-//                NSLog (@"AVAssetExportSessionStatusFailed: %@", errorInfo);
-//                break;
-//            }
-//                
-//            case AVAssetExportSessionStatusCompleted: {
-//                
-//                NSLog (@"AVAssetExportSessionStatusCompleted");
-//                NSSound *sound = [NSSound soundNamed:@"Sosumi"];
-//                [sound play];
-//                break;
-//            }
-//                
-//            case AVAssetExportSessionStatusUnknown: { NSLog (@"AVAssetExportSessionStatusUnknown");
-//                break;
-//            }
-//            case AVAssetExportSessionStatusExporting: { NSLog (@"AVAssetExportSessionStatusExporting");
-//                break;
-//            }
-//                
-//            case AVAssetExportSessionStatusCancelled: { NSLog (@"AVAssetExportSessionStatusCancelled");
-//                
-//                NSLog(@"Cancellated");
-//                break;
-//            }
-//                
-//            case AVAssetExportSessionStatusWaiting: {
-//                NSLog (@"AVAssetExportSessionStatusWaiting");
-//                break;
-//            }
-//                
-//            default:
-//            {
-//                NSLog (@"didn't get export status");
-//                break;
-//            }
-//        }
-//        
-//        
-//        
-//    }];
-//
-//}
+- (BOOL) isPlaying
+{
+    return self.player.rate;
+}
 
+- (NSString *) fileDuration{
+    CMTime duration = self.player.currentItem.asset.duration;
+    return [self stringFromTime:duration];
+}
 
+- (NSString *)stringFromTime: (CMTime) time
+{
+    NSString *timeIntervalString;
+    
+    NSInteger ti = time.value / time.timescale;
+    NSInteger seconds = ti % 60;
+    NSInteger minutes = (ti / 60) % 60;
+    NSInteger hours = (ti / 3600);
+    
+    if (hours) {
+        timeIntervalString = [NSString stringWithFormat:@"%02li:%02li:%02li", (long)hours, (long)minutes, (long)seconds];
+    } else {
+        timeIntervalString = [NSString stringWithFormat:@"%02li:%02li", (long)minutes, (long)seconds];
+    }
+    
+    return timeIntervalString;
+}
 
-
+- (void) updateObservers
+{
+    self.duration = self.player.currentItem.asset.duration;
+    
+    __weak PSAudioEditor * weakSelf = self;
+    [self.player addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:self.duration]]
+                                           queue:self.timeUpdateQueue
+                                      usingBlock:^{
+                                          [weakSelf.delegate playerDidFinishPLaying];
+                                          [weakSelf stop];
+                                      }];
+}
 
 @end

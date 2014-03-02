@@ -8,11 +8,6 @@
 
 #import "PSAudioExporter.h"
 
-#define TYPES_DICT @{AVFileTypeMPEGLayer3 : [NSNumber numberWithUnsignedInt:kAudioFormatMPEGLayer3],\
-                     AVFileTypeAppleM4A : [NSNumber numberWithUnsignedInt:kAudioFormatMPEG4AAC], \
-                     AVFileTypeAIFF : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM]}
-
-
 @interface PSAudioExporter ()
 @property (strong, nonatomic) dispatch_queue_t mainSerializationQueue, rwAudioSerializationQueue;
 @property (strong, nonatomic) dispatch_group_t dispatchGroup;
@@ -30,6 +25,7 @@
 
 @property (strong, nonatomic) AVAsset * asset;
 @property (strong,nonatomic) NSString * fileType;
+@property (strong,nonatomic) NSMutableDictionary * settingsDict;
 
 @end
 
@@ -119,13 +115,9 @@
                 .mNumberChannelDescriptions = 0
             };
             NSData *channelLayoutAsData = [NSData dataWithBytes:&stereoChannelLayout length:offsetof(AudioChannelLayout, mChannelDescriptions)];
-            NSDictionary *compressionAudioSettings = @{
-                                                       AVFormatIDKey         : self.formatIDKey,
-                                                       AVEncoderBitRateKey   : [NSNumber numberWithInteger:128000],
-                                                       AVSampleRateKey       : [NSNumber numberWithInteger:44100],
-                                                       AVChannelLayoutKey    : channelLayoutAsData,
-                                                       AVNumberOfChannelsKey : [NSNumber numberWithUnsignedInteger:2]
-                                                       };
+            [self.settingsDict addEntriesFromDictionary:@{AVChannelLayoutKey:channelLayoutAsData}];
+            NSDictionary * compressionAudioSettings = [NSDictionary dictionaryWithDictionary:self.settingsDict];
+            
             self.assetWriterAudioInput = [AVAssetWriterInput assetWriterInputWithMediaType:[assetAudioTrack mediaType] outputSettings:compressionAudioSettings];
             [self.assetWriter addInput:self.assetWriterAudioInput];
         }
@@ -138,9 +130,9 @@
 - (void) setFileType:(NSString *)fileType
 {
     _fileType = fileType;
-    NSDictionary * fileTypesDict = TYPES_DICT;
-    self.formatIDKey = fileTypesDict[fileType];
     
+    self.formatIDKey = [TYPES_DICT objectForKey:self.fileType];
+    self.settingsDict = [[SETTINGS_DICT objectForKey:self.fileType] mutableCopy];
 }
 
 - (BOOL)startAssetReaderAndWriter:(NSError **)outError
