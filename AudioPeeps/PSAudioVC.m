@@ -21,6 +21,7 @@
 @property (weak,nonatomic) IBOutlet NSButton * playButton;
 @property (weak) IBOutlet NSButton *redoButton;
 @property (weak) IBOutlet NSButton *undoButton;
+
 @property (weak,nonatomic) IBOutlet NSPopUpButton * formatsPopUp;
 @property (weak,nonatomic) IBOutlet NSTextField * durationTextField;
 @property (weak,nonatomic) IBOutlet NSTextField * currentTimeTextField;
@@ -148,14 +149,15 @@
 }
 
 
--(IBAction)redoLastUndo:(NSButton *)sender {
+
+-(IBAction)redoLastUndo:(id)sender {
   [self.audioEditor redoLatestUndoWithCompletion:^(BOOL success) {
     [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
     [self updateButtonStatus];
   }];
 }
 
--(IBAction)undoLastChange:(NSButton *)sender {
+-(IBAction)undoLastChange:(id)sender {
   [self.audioEditor undoLatestOperationWithCompletion:^(BOOL success) {
     [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
     [self updateButtonStatus];
