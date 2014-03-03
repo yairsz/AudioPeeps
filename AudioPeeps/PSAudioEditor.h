@@ -9,14 +9,35 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
+@protocol PSAudioEditorDelegate <NSObject>
+
+@optional
+- (void) updateCurrentTime: (NSString *) currentTime andFloat: (float) value;
+- (void) playerDidFinishPLaying;
+
+@end
+
 @interface PSAudioEditor : NSObject
 
+@property (strong, nonatomic) AVMutableComposition * composition;
+
+@property (unsafe_unretained) id <PSAudioEditorDelegate> delegate;
+
+
+//Transport
 - (void) play;
-- (void) loadFile: (NSURL *) fileURL;
-- (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
-- (void) exportAudio:(int)fileFormat;
-- (void) seekToTime:(float)seekTime;
 - (void) pause;
 - (void) stop;
+- (void) seekToTime:(float)seekTime;
+- (BOOL) isPlaying;
+
+
+//File
+- (void) loadFile: (NSURL *) fileURL completion:(void(^)(BOOL success))completion;
+- (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
+- (NSString *) fileDuration;
+
+  // Undo
+-(void)undoLatestOperationWithCompletion:(void (^)(BOOL success))completion;
 
 @end

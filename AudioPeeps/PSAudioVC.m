@@ -8,18 +8,30 @@
 
 #import "PSAudioVC.h"
 #import "PSAudioEditor.h"
+#import "PSAudioExporter.h"
 #import "Constants.h"
-#define IN_TIME 0.1f
-#define OUT_TIME 0.2f
 
-@interface PSAudioVC ()
+#define AVAILABLE_FORMATS @[@"M4A",@"AIFF",@"WAVE"]
 
+@interface PSAudioVC () <PSAudioEditorDelegate>
 
-@property (weak,nonatomic) IBOutlet NSButton * setInButton;
-@property (weak,nonatomic) IBOutlet NSButton * setOutButton;
-@property (weak,nonatomic) IBOutlet NSButton * trimButton;
-@property (nonatomic) int fileType;
+@property (weak,nonatomic) IBOutlet NSButton * deleteSelectionButton;
+@property (weak,nonatomic) IBOutlet NSButton * stopButton;
+@property (weak,nonatomic) IBOutlet NSButton * exportButton;
+@property (weak,nonatomic) IBOutlet NSButton * playButton;
+@property (weak,nonatomic) IBOutlet NSPopUpButton * formatsPopUp;
+@property (weak,nonatomic) IBOutlet NSTextField * durationTextField;
+@property (weak,nonatomic) IBOutlet NSTextField * currentTimeTextField;
+@property (weak,nonatomic) IBOutlet NSSlider * punchInSlider;
+@property (weak,nonatomic) IBOutlet NSSlider * punchOutSlider;
+@property (weak,nonatomic) IBOutlet NSSlider * seekSlider;
 @property (strong, nonatomic) PSAudioEditor * audioEditor;
+@property (strong, nonatomic) PSAudioExporter * audioExporter;
+@property (strong,nonatomic) NSString * fileType;
+@property (strong,nonatomic) NSString * fileExtension;
+
+@property (nonatomic) float punchInValue;
+@property (nonatomic) float punchOutValue;
 
 @end
 
@@ -30,15 +42,33 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         
-        self.fileType = PSAudioFileFormatAAC;
+        
+        
     }
     return self;
+}
+
+- (void) loadView {
+    [super loadView];
+    [self viewDidLoad];
+}
+
+- (void) viewDidLoad
+{
+        
+    [self.formatsPopUp addItemsWithTitles:AVAILABLE_FORMATS];
+    self.fileType = [self fileTypeForIndex:0];
+    self.fileExtension = [EXTENSIONS objectAtIndex:0];
+    self.punchInValue = 0.0;
+    self.punchOutValue = 1.0;
+    
 }
 
 - (PSAudioEditor *)audioEditor
 {
     if (!_audioEditor) {
         _audioEditor = [[PSAudioEditor alloc] init];
+        _audioEditor.delegate = self;
     }
     return _audioEditor;
 }
@@ -46,33 +76,97 @@
 - (IBAction)loadPressed:(NSButton *)sender {
     
     
-    NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"speech.aif"];
+    NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"Stravinsky.m4a"];
     NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
     NSLog(@"%@", soundFileURL);
-    [self.audioEditor loadFile:soundFileURL];
+    [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
+        [self.playButton setEnabled:YES];
+        [self.deleteSelectionButton setEnabled:YES];
+        [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+    }];
 }
 
 - (IBAction)playPressed:(id)sender {
     
-    [self.audioEditor play];
+    if ([self.audioEditor isPlaying]) {
+        [self.audioEditor pause];
+        [self.playButton setTitle:@"Play"];
+        [self.stopButton setEnabled:NO];
+    } else {
+        [self.audioEditor play];
+        [self.stopButton setEnabled:YES];
+        [self.playButton setTitle:@"Pause"];
+    }
+    
 }
 
 - (IBAction)deletePressed:(id)sender {
     
-    [self.audioEditor deleteAudioFrom:IN_TIME to:OUT_TIME];
-    
+    [self.audioEditor deleteAudioFrom:self.punchInValue to:self.punchOutValue];
+    [self.exportButton setEnabled:YES];
+    [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
 }
 
 - (IBAction)stopPressed:(id)sender {
     
     [self.audioEditor stop];
+    [self.stopButton setEnabled:NO];
+    [self.playButton setTitle:@"Play"];
 }
 
 - (IBAction)export:(id)sender {
-    
-    [self.audioEditor exportAudio:self.fileType];
+    NSInteger randomNumber = arc4random() % 1000;
+    NSString * fileName = [NSString stringWithFormat:@"export-%ld%@",(long)randomNumber,self.fileExtension];
+    NSURL * URL = [NSURL fileURLWithPath:[[self docsPath] stringByAppendingPathComponent:fileName]];
+    self.audioExporter = [[PSAudioExporter alloc] initWithAsset:self.audioEditor.composition
+                                                         andURL:URL
+                                                    andFileType:self.fileType];
 }
 
+- (IBAction)formatChangedValue:(NSPopUpButton *)sender
+{
+    NSInteger index = [sender indexOfSelectedItem];
+    self.fileType = [self fileTypeForIndex: index];
+    self.fileExtension = [EXTENSIONS objectAtIndex:index];
+}
+-(IBAction)undoLastChange:(NSButton *)sender {
+  [self.audioEditor undoLatestOperationWithCompletion:^(BOOL success) {
+    [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+  }];
+}
+
+- (IBAction)seekSliderChangedValue:(NSSlider *)sender {
+  [self.audioEditor seekToTime:sender.floatValue];
+}
+
+- (IBAction)punchInSliderChangedValue:(NSSlider *)sender
+{
+    self.punchInValue = sender.floatValue;
+}
+
+- (IBAction)punchOutSliderChangedValue:(NSSlider *)sender
+{
+    self.punchOutValue = sender.floatValue;
+}
+
+- (NSString *) fileTypeForIndex:(NSInteger) index
+{
+    NSString * formatKey = [AVAILABLE_FORMATS objectAtIndex:index];
+    NSDictionary * formatsDict = AVAILABLE_FORMATS_DICT;
+    return  [formatsDict valueForKey:formatKey];
+}
+
+- (void) updateCurrentTime:(NSString *)currentTime andFloat:(float)value
+{
+    [self.currentTimeTextField setStringValue:currentTime];
+    [self.seekSlider setFloatValue:value];
+}
+
+- (void) playerDidFinishPLaying
+{
+    [self.stopButton setEnabled:NO];
+    [self.playButton setTitle:@"Play"];
+}
 
 
 - (NSString *) docsPath
@@ -81,5 +175,7 @@
     NSString * path = dirPaths[0];
     return [path stringByAppendingPathComponent:@"AudioPeeps"];
 }
+
+
 
 @end

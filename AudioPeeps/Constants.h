@@ -9,10 +9,49 @@
 #ifndef AudioPeeps_Constants_h
 #define AudioPeeps_Constants_h
 
-typedef enum fileFormat {
-    PSAudioFileFormatMP3 = 0,
-    PSAudioFileFormatAAC,
-    PSAudioFileFormatAIF
-} PSAudioFileFormat;
+#define AVAILABLE_FORMATS @[@"M4A",@"AIFF",@"WAVE"]
+
+#define EXTENSIONS @[@".m4a",@".aif",@".wav"]
+
+#define AVAILABLE_FORMATS_DICT @{ \
+                        @"M4A" : AVFileTypeAppleM4A, \
+                        @"AIFF": AVFileTypeWAVE, \
+                        @"WAVE":AVFileTypeAIFF,\
+                        }
+
+#define TYPES_DICT @{ \
+                    AVFileTypeAppleM4A : [NSNumber numberWithUnsignedInt:kAudioFormatMPEG4AAC], \
+                    AVFileTypeWAVE : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM], \
+                    AVFileTypeAIFF : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM],\
+                    }
+#define SETTINGS_DICT @{ \
+                    AVFileTypeAppleM4A : @{ \
+                    AVFormatIDKey         : self.formatIDKey, \
+                    AVEncoderBitRateKey   : [NSNumber numberWithInteger:128000],\
+                    AVSampleRateKey       : [NSNumber numberWithInteger:44100],\
+                    AVNumberOfChannelsKey : [NSNumber numberWithUnsignedInteger:2]\
+                    }, \
+                    AVFileTypeWAVE : @{ \
+                    AVFormatIDKey                   : self.formatIDKey, \
+                    AVLinearPCMIsNonInterleavedKey  : AVLinearPCMIsNonInterleaved, \
+                    AVLinearPCMIsBigEndianKey       : @NO, \
+                    AVLinearPCMBitDepthKey          : [NSNumber numberWithInt:16], \
+                    AVLinearPCMIsFloatKey           : @NO, \
+                    AVSampleRateKey                 : [NSNumber numberWithInteger:44100], \
+                    AVNumberOfChannelsKey           : [NSNumber numberWithUnsignedInteger:2] \
+                    }, \
+                    AVFileTypeAIFF : @{ \
+                    AVFormatIDKey                   : self.formatIDKey, \
+                    AVLinearPCMIsNonInterleavedKey  : AVLinearPCMIsNonInterleaved, \
+                    AVLinearPCMIsBigEndianKey       : @YES, \
+                    AVLinearPCMBitDepthKey          : [NSNumber numberWithInt:16], \
+                    AVLinearPCMIsFloatKey           : @NO, \
+                    AVSampleRateKey                 : [NSNumber numberWithInteger:44100], \
+                    AVNumberOfChannelsKey           : [NSNumber numberWithUnsignedInteger:2] \
+                    }\
+}
+
+
+
 
 #endif

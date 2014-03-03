@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "PSAudioEditor.h"
 
 @interface AudioPeepsTests : XCTestCase
 
@@ -30,5 +31,7 @@
 {
     XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
+
+
 
 @end
