@@ -99,19 +99,13 @@
             [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
                 [self.playButton setEnabled:YES];
                 [self.deleteSelectionButton setEnabled:YES];
+                [self.exportButton setEnabled:YES];
                 [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
             }];
         } else {
             return;
         }
     }];
-
-
-     
-     
-     
-   
-    
 }
 
 - (IBAction)playPressed:(id)sender {
@@ -143,12 +137,35 @@
 }
 
 - (IBAction)export:(id)sender {
+    
+    
+    // Create the File Open Dialog class.
+    NSSavePanel* saveDlg = [NSSavePanel savePanel];
     NSInteger randomNumber = arc4random() % 1000;
-    NSString * fileName = [NSString stringWithFormat:@"export-%ld%@",(long)randomNumber,self.fileExtension];
-    NSURL * URL = [NSURL fileURLWithPath:[[self docsPath] stringByAppendingPathComponent:fileName]];
-    self.audioExporter = [[PSAudioExporter alloc] initWithAsset:self.audioEditor.composition
-                                                         andURL:URL
-                                                    andFileType:self.fileType];
+    NSString * fileName = [NSString stringWithFormat:@"ExportAudio-%ld%@",randomNumber,self.fileExtension];
+    [saveDlg setNameFieldStringValue:fileName];
+    
+    // Display the dialog.  If the OK button was pressed,
+    // process the files.
+    [saveDlg beginWithCompletionHandler:^(NSInteger result) {
+        if (result == NSFileHandlingPanelOKButton) {
+
+            NSURL * URL = [saveDlg URL];
+            self.audioExporter = [[PSAudioExporter alloc] initWithAsset:self.audioEditor.composition
+                                                                 andURL:URL
+                                                            andFileType:self.fileType];
+            
+            
+        } else {
+            return;
+        }
+    }];
+
+    
+    
+    
+    
+    
 }
 
 - (IBAction)formatChangedValue:(NSPopUpButton *)sender
