@@ -17,8 +17,12 @@
 
 @property (strong, nonatomic) AVURLAsset * asset;
 @property (strong, nonatomic) AVPlayer * player;
-@property (strong, nonatomic) AVMutableComposition * composition;
+@property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
+@property (nonatomic) CMTime duration;
+
 @property (strong, nonatomic) NSUndoManager *undoManager;
+@property (strong, nonatomic) NSMutableArray *compositionsToUndo;
+@property (strong, nonatomic) id observer;
 
 @end
 

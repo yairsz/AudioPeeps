@@ -76,14 +76,42 @@
 - (IBAction)loadPressed:(NSButton *)sender {
     
     
-    NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"Stravinsky.m4a"];
-    NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
-    NSLog(@"%@", soundFileURL);
-    [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
-        [self.playButton setEnabled:YES];
-        [self.deleteSelectionButton setEnabled:YES];
-        [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+    // Create the File Open Dialog class.
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    [openDlg setAllowsMultipleSelection:NO];
+    
+    [openDlg setAllowedFileTypes:@[AVFileTypeAppleM4A, AVFileTypeAIFF, AVFileTypeWAVE]];
+    
+    // Enable the selection of files in the dialog.
+    [openDlg setCanChooseFiles:YES];
+    
+    // Enable the selection of directories in the dialog.
+    [openDlg setCanChooseDirectories:NO];
+    
+    // Display the dialog.  If the OK button was pressed,
+    // process the files.
+    [openDlg beginWithCompletionHandler:^(NSInteger result) {
+        if (result == NSFileHandlingPanelOKButton) {
+            
+            NSURL *soundFileURL = [openDlg URL];
+            
+            NSLog(@"%@", soundFileURL);
+            [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
+                [self.playButton setEnabled:YES];
+                [self.deleteSelectionButton setEnabled:YES];
+                [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+            }];
+        } else {
+            return;
+        }
     }];
+
+
+     
+     
+     
+   
+    
 }
 
 - (IBAction)playPressed:(id)sender {
