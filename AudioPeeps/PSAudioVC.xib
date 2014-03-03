@@ -97,7 +97,7 @@
                     </connections>
                 </popUpButton>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H8v-HV-Sgx">
-                    <rect key="frame" x="18" y="65" width="444" height="25"/>
+                    <rect key="frame" x="18" y="65" width="444" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="iVT-Vl-qal"/>
                     <connections>
@@ -105,7 +105,7 @@
                     </connections>
                 </slider>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lb5-Ho-9BI">
-                    <rect key="frame" x="18" y="9" width="444" height="25"/>
+                    <rect key="frame" x="18" y="9" width="444" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" doubleValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="lNX-sj-gjO"/>
                     <connections>
@@ -149,9 +149,12 @@
                     </textFieldCell>
                 </textField>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aLU-XI-sBV">
-                    <rect key="frame" x="18" y="121" width="444" height="25"/>
+                    <rect key="frame" x="18" y="121" width="444" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="TU5-r5-9UN"/>
+                    <connections>
+                        <action selector="seekSliderChangedValue:" target="-2" id="MGp-Ag-pX9"/>
+                    </connections>
                 </slider>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="luc-dm-u0x">
                     <rect key="frame" x="223" y="147" width="34" height="17"/>

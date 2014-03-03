@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F439CF318C4114C00B80D5A /* Stravinsky.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 3F439CF218C4114C00B80D5A /* Stravinsky.m4a */; };
 		B00AF44618BAB8C500ADD426 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00AF44518BAB8C500ADD426 /* Cocoa.framework */; };
 		B00AF45018BAB8C500ADD426 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B00AF44E18BAB8C500ADD426 /* InfoPlist.strings */; };
 		B00AF45218BAB8C500ADD426 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF45118BAB8C500ADD426 /* main.m */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F439CF218C4114C00B80D5A /* Stravinsky.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Stravinsky.m4a; sourceTree = "<group>"; };
 		B00AF44218BAB8C500ADD426 /* AudioPeeps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AudioPeeps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00AF44518BAB8C500ADD426 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		B00AF44818BAB8C500ADD426 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -135,6 +137,7 @@
 		B00AF44B18BAB8C500ADD426 /* AudioPeeps */ = {
 			isa = PBXGroup;
 			children = (
+				3F439CF218C4114C00B80D5A /* Stravinsky.m4a */,
 				B00AF49218BACF8800ADD426 /* PSAudioVC.h */,
 				B00AF49318BACF8800ADD426 /* PSAudioVC.m */,
 				B02319B418BED87D00E2F03C /* Constants.h */,
@@ -261,6 +264,7 @@
 			files = (
 				B00AF45018BAB8C500ADD426 /* InfoPlist.strings in Resources */,
 				B00AF49618BACF8800ADD426 /* PSAudioVC.xib in Resources */,
+				3F439CF318C4114C00B80D5A /* Stravinsky.m4a in Resources */,
 				B00AF45E18BAB8C500ADD426 /* Images.xcassets in Resources */,
 				B00AF45618BAB8C500ADD426 /* Credits.rtf in Resources */,
 				B00AF45C18BAB8C500ADD426 /* MainMenu.xib in Resources */,
