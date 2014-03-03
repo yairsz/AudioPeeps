@@ -59,21 +59,6 @@
     return  _composition;
 }
 
-
-  // FIXME: this method never actually gets called from VC
-- (PSAudioEditor *) initWithURL: (NSURL *) URL
-{
-    if (self = [super init]) {
-        
-        NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
-        _asset = [[AVURLAsset alloc] initWithURL:URL options:options];
-    }
-    
-    return self;
-}
-
-
-
 - (AVPlayer *) player
 {
     if (!_player) {
