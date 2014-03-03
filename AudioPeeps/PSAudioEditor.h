@@ -20,7 +20,7 @@
 @interface PSAudioEditor : NSObject
 
 @property (strong, nonatomic) AVMutableComposition * composition;
-
+@property (strong, nonatomic) NSUndoManager *undoManager;
 @property (unsafe_unretained) id <PSAudioEditorDelegate> delegate;
 
 
