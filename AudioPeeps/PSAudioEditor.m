@@ -20,7 +20,6 @@
 @property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
 @property (nonatomic) CMTime duration;
 
-@property (strong, nonatomic) NSUndoManager *undoManager;
 @property (strong, nonatomic) AVComposition *immutableComposition;
 @property (strong, nonatomic) id observer;
 

@@ -15,11 +15,13 @@
                 <outlet property="playButton" destination="h01-eZ-2y1" id="jIm-aa-3bK"/>
                 <outlet property="punchInSlider" destination="H8v-HV-Sgx" id="tSz-gQ-DDQ"/>
                 <outlet property="punchOutSlider" destination="Lb5-Ho-9BI" id="RiD-x7-4zL"/>
+                <outlet property="redoButton" destination="sze-Xi-oK3" id="cWb-D1-A3P"/>
                 <outlet property="seekSlider" destination="aLU-XI-sBV" id="9i0-Uh-F1q"/>
                 <outlet property="setInButton" destination="euZ-Ez-jCZ" id="VOd-hx-U0A"/>
                 <outlet property="setOutButton" destination="zPA-gH-5Li" id="bja-4r-3cJ"/>
                 <outlet property="stopButton" destination="zPA-gH-5Li" id="JiD-08-YU9"/>
                 <outlet property="trimButton" destination="MxF-2Q-LI9" id="oC8-GL-IfH"/>
+                <outlet property="undoButton" destination="8U6-zg-6xe" id="5pG-8K-80B"/>
                 <outlet property="view" destination="1" id="2"/>
             </connections>
         </customObject>

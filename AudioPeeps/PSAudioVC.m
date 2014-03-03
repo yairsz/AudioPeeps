@@ -19,6 +19,8 @@
 @property (weak,nonatomic) IBOutlet NSButton * stopButton;
 @property (weak,nonatomic) IBOutlet NSButton * exportButton;
 @property (weak,nonatomic) IBOutlet NSButton * playButton;
+@property (weak) IBOutlet NSButton *redoButton;
+@property (weak) IBOutlet NSButton *undoButton;
 @property (weak,nonatomic) IBOutlet NSPopUpButton * formatsPopUp;
 @property (weak,nonatomic) IBOutlet NSTextField * durationTextField;
 @property (weak,nonatomic) IBOutlet NSTextField * currentTimeTextField;
@@ -61,6 +63,7 @@
     self.fileExtension = [EXTENSIONS objectAtIndex:0];
     self.punchInValue = 0.0;
     self.punchOutValue = 1.0;
+  [self updateButtonStatus];
     
 }
 
@@ -71,6 +74,19 @@
         _audioEditor.delegate = self;
     }
     return _audioEditor;
+}
+
+-(void)updateButtonStatus {
+  if ([self.audioEditor.undoManager canUndo]) {
+    [self.undoButton setEnabled:YES];
+  } else {
+    [self.undoButton setEnabled:NO];
+  }
+  if ([self.audioEditor.undoManager canRedo]) {
+    [self.redoButton setEnabled:YES];
+  } else {
+    [self.redoButton setEnabled:NO];
+  }
 }
 
 - (IBAction)loadPressed:(NSButton *)sender {
@@ -105,6 +121,7 @@
     [self.audioEditor deleteAudioFrom:self.punchInValue to:self.punchOutValue];
     [self.exportButton setEnabled:YES];
     [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+  [self updateButtonStatus];
 }
 
 - (IBAction)stopPressed:(id)sender {
@@ -134,12 +151,14 @@
 -(IBAction)redoLastUndo:(NSButton *)sender {
   [self.audioEditor redoLatestUndoWithCompletion:^(BOOL success) {
     [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+    [self updateButtonStatus];
   }];
 }
 
 -(IBAction)undoLastChange:(NSButton *)sender {
   [self.audioEditor undoLatestOperationWithCompletion:^(BOOL success) {
     [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+    [self updateButtonStatus];
   }];
 }
 
