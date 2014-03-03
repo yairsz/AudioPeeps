@@ -8,6 +8,7 @@
 
 #import "PSAudioEditor.h"
 #import "Constants.h"
+
 @interface PSAudioEditor()
 {
     NSURL * soundFileURL;
@@ -17,6 +18,7 @@
 @property (strong, nonatomic) AVURLAsset * asset;
 @property (strong, nonatomic) AVPlayer * player;
 @property (strong, nonatomic) AVMutableComposition * composition;
+@property (strong, nonatomic) NSUndoManager *undoManager;
 
 @end
 
