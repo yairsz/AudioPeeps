@@ -8,6 +8,7 @@
 
 #import "PSAudioEditor.h"
 #import "Constants.h"
+
 @interface PSAudioEditor()
 {
     NSURL * soundFileURL;
@@ -19,21 +20,30 @@
 @property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
 @property (nonatomic) CMTime duration;
 
+@property (strong, nonatomic) NSUndoManager *undoManager;
+@property (strong, nonatomic) NSMutableArray *compositionsToUndo;
 
 @end
 
 @implementation PSAudioEditor
 
+- (PSAudioEditor *) init {
+  if (self = [super init]) {
+    if (!self.undoManager) {
+      self.undoManager = [NSUndoManager new];
+      self.compositionsToUndo = [NSMutableArray new];
+    }
+  }
+  return self;
+}
 
+  // FIXME: this method never actually gets called from VC
 - (PSAudioEditor *) initWithURL: (NSURL *) URL
 {
     if (self = [super init]) {
         
         NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
         _asset = [[AVURLAsset alloc] initWithURL:URL options:options];
-        
-        
-        
     }
     
     return self;
@@ -90,7 +100,6 @@
     [self seekToTime:0.f];
 }
 
-
 - (void) loadFile: (NSURL *) fileURL completion:(void (^)(BOOL))completion
 {
     self.composition = nil;
@@ -107,18 +116,25 @@
     
     [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
     [self updateObservers];
-    
+  
     completion(YES);
 }
 
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
 {
     AVMutableCompositionTrack * compositionTrack = [[self.composition tracks] lastObject];
-    
+  
+    // register undo operation
+  [self.undoManager beginUndoGrouping];
+  [self.undoManager registerUndoWithTarget:self selector:@selector(retrievePreviousCopyOfComposition) object:nil];
+  [self.undoManager endUndoGrouping];
+  [self.compositionsToUndo addObject:[self.composition copy]];
+  
     CMTime inTime = CMTimeMake(self.composition.duration.value * punchIn, self.composition.duration.timescale);
     CMTime outTime = CMTimeMake(self.composition.duration.value * punchOut, self.composition.duration.timescale);
     
     [compositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
+  
     [self updateObservers];
 }
 
@@ -161,6 +177,20 @@
                                           [weakSelf.delegate playerDidFinishPLaying];
                                           [weakSelf stop];
                                       }];
+}
+
+#pragma mark - undo methods
+
+-(void)undoLatestOperationWithCompletion:(void (^)(BOOL))completion {
+  [self.undoManager undo];
+  [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
+  [self updateObservers];
+  completion(YES);
+}
+
+-(void)retrievePreviousCopyOfComposition {
+  self.composition = [[self.compositionsToUndo lastObject] mutableCopy];
+  [self.compositionsToUndo removeLastObject];
 }
 
 @end

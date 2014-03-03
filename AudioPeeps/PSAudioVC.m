@@ -129,7 +129,11 @@
     self.fileType = [self fileTypeForIndex: index];
     self.fileExtension = [EXTENSIONS objectAtIndex:index];
 }
-
+-(IBAction)undoLastChange:(NSButton *)sender {
+  [self.audioEditor undoLatestOperationWithCompletion:^(BOOL success) {
+    [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+  }];
+}
 
 - (IBAction)seekSliderChangedValue:(NSSlider *)sender {
   [self.audioEditor seekToTime:sender.floatValue];
