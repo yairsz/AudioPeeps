@@ -129,9 +129,8 @@
     self.fileType = [self fileTypeForIndex: index];
     self.fileExtension = [EXTENSIONS objectAtIndex:index];
 }
-
--(IBAction)undoAllChanges:(NSButton *)sender {
-  [self.audioEditor undoAllChangesWithCompletion:^(BOOL success) {
+-(IBAction)undoLastChange:(NSButton *)sender {
+  [self.audioEditor undoLatestOperationWithCompletion:^(BOOL success) {
     [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
   }];
 }
