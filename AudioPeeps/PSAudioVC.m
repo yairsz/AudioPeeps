@@ -76,7 +76,7 @@
 - (IBAction)loadPressed:(NSButton *)sender {
     
     
-    NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"speech.m4a"];
+    NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"Stravinsky.m4a"];
     NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
     NSLog(@"%@", soundFileURL);
     [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
@@ -128,6 +128,11 @@
     NSInteger index = [sender indexOfSelectedItem];
     self.fileType = [self fileTypeForIndex: index];
     self.fileExtension = [EXTENSIONS objectAtIndex:index];
+}
+
+
+- (IBAction)seekSliderChangedValue:(NSSlider *)sender {
+  [self.audioEditor seekToTime:sender.floatValue];
 }
 
 - (IBAction)punchInSliderChangedValue:(NSSlider *)sender
