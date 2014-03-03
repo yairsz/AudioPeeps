@@ -22,6 +22,7 @@
 
 @property (strong, nonatomic) NSUndoManager *undoManager;
 @property (strong, nonatomic) NSMutableArray *compositionsToUndo;
+@property (strong, nonatomic) id observer;
 
 @end
 
@@ -29,13 +30,35 @@
 
 - (PSAudioEditor *) init {
   if (self = [super init]) {
-    if (!self.undoManager) {
-      self.undoManager = [NSUndoManager new];
-      self.compositionsToUndo = [NSMutableArray new];
-    }
+    
   }
   return self;
 }
+
+- (NSUndoManager *) undoManager
+{
+    if (!_undoManager) {
+        _undoManager = [NSUndoManager new];
+    }
+    return _undoManager;
+}
+
+- (NSMutableArray *) compositionsToUndo
+{
+    if (!_compositionsToUndo) {
+        _compositionsToUndo = [NSMutableArray new];
+    }
+    return _compositionsToUndo;
+}
+
+- (AVMutableComposition *) composition
+{
+    if (!_composition) {
+        _composition = [AVMutableComposition composition];
+    }
+    return  _composition;
+}
+
 
   // FIXME: this method never actually gets called from VC
 - (PSAudioEditor *) initWithURL: (NSURL *) URL
@@ -48,6 +71,8 @@
     
     return self;
 }
+
+
 
 - (AVPlayer *) player
 {
@@ -65,17 +90,9 @@
                                              [weakSelf.delegate updateCurrentTime:timeString andFloat:value];
                                          }];
     }
-    
     return _player;
 }
 
-- (AVMutableComposition *) composition
-{
-    if (!_composition) {
-        _composition = [AVMutableComposition composition];
-    }
-    return  _composition;
-}
 
 - (void) play
 {
@@ -168,10 +185,12 @@
 
 - (void) updateObservers
 {
+    if (self.observer)[self.player removeTimeObserver:self.observer];
     self.duration = self.player.currentItem.asset.duration;
     
     __weak PSAudioEditor * weakSelf = self;
-    [self.player addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:self.duration]]
+    self.observer = [self.player
+                 addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:self.duration]]
                                            queue:self.timeUpdateQueue
                                       usingBlock:^{
                                           [weakSelf.delegate playerDidFinishPLaying];
