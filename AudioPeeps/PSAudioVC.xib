@@ -54,9 +54,9 @@
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MxF-2Q-LI9">
-                    <rect key="frame" x="379" y="224" width="87" height="32"/>
+                    <rect key="frame" x="379" y="224" width="81" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="Ecsport" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EOb-bu-bvo">
+                    <buttonCell key="cell" type="push" title="Export" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EOb-bu-bvo">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
@@ -191,19 +191,5 @@
                 </button>
             </subviews>
         </customView>
-        <menu id="3a8-Bj-87n">
-            <items>
-                <menuItem title="Hello" id="Hx7-1T-pfa">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                </menuItem>
-                <menuItem title="Yay" id="mPw-ig-5Ho">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                </menuItem>
-                <menuItem title="Howdy" id="jch-Bg-JF7">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                </menuItem>
-            </items>
-            <accessibility description="Main"/>
-        </menu>
     </objects>
 </document>

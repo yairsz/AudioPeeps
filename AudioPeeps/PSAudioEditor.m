@@ -50,7 +50,9 @@
 }
 
 -(void)setImmutableComposition:(AVComposition *)immutableComposition {
-  if (_immutableComposition != immutableComposition) {
+  if (!_immutableComposition) {
+    _immutableComposition = immutableComposition;
+  } else if (_immutableComposition != immutableComposition) {
       [self.undoManager registerUndoWithTarget:self selector:@selector(setImmutableComposition:) object:_immutableComposition];
     _immutableComposition = immutableComposition;
   }
