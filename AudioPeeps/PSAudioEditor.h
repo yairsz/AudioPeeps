@@ -37,7 +37,8 @@
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
 - (NSString *) fileDuration;
 
-  // Undo
+  // undo and redo
 -(void)undoLatestOperationWithCompletion:(void (^)(BOOL success))completion;
+-(void)redoLatestUndoWithCompletion:(void (^)(BOOL success))completion;
 
 @end

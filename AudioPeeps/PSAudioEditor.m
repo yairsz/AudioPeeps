@@ -21,7 +21,7 @@
 @property (nonatomic) CMTime duration;
 
 @property (strong, nonatomic) NSUndoManager *undoManager;
-@property (strong, nonatomic) NSMutableArray *compositionsToUndo;
+@property (strong, nonatomic) AVComposition *immutableComposition;
 @property (strong, nonatomic) id observer;
 
 @end
@@ -30,7 +30,6 @@
 
 - (PSAudioEditor *) init {
   if (self = [super init]) {
-    
   }
   return self;
 }
@@ -43,20 +42,19 @@
     return _undoManager;
 }
 
-- (NSMutableArray *) compositionsToUndo
-{
-    if (!_compositionsToUndo) {
-        _compositionsToUndo = [NSMutableArray new];
-    }
-    return _compositionsToUndo;
-}
-
 - (AVMutableComposition *) composition
 {
     if (!_composition) {
         _composition = [AVMutableComposition composition];
     }
     return  _composition;
+}
+
+-(void)setImmutableComposition:(AVComposition *)immutableComposition {
+  if (_immutableComposition != immutableComposition) {
+      [self.undoManager registerUndoWithTarget:self selector:@selector(setImmutableComposition:) object:_immutableComposition];
+    _immutableComposition = immutableComposition;
+  }
 }
 
 - (AVPlayer *) player
@@ -117,6 +115,8 @@
     [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
     
     [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
+  
+  self.immutableComposition = [self.composition copy];
     [self updateObservers];
   
     completion(YES);
@@ -126,11 +126,7 @@
 {
     AVMutableCompositionTrack * compositionTrack = [[self.composition tracks] lastObject];
   
-    // register undo operation
-  [self.undoManager beginUndoGrouping];
-  [self.undoManager registerUndoWithTarget:self selector:@selector(retrievePreviousCopyOfComposition) object:nil];
-  [self.undoManager endUndoGrouping];
-  [self.compositionsToUndo addObject:[self.composition copy]];
+  self.immutableComposition = [self.composition copy];
   
     CMTime inTime = CMTimeMake(self.composition.duration.value * punchIn, self.composition.duration.timescale);
     CMTime outTime = CMTimeMake(self.composition.duration.value * punchOut, self.composition.duration.timescale);
@@ -187,14 +183,18 @@
 
 -(void)undoLatestOperationWithCompletion:(void (^)(BOOL))completion {
   [self.undoManager undo];
+  self.composition = [self.immutableComposition mutableCopy];
   [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
   [self updateObservers];
   completion(YES);
 }
 
--(void)retrievePreviousCopyOfComposition {
-  self.composition = [[self.compositionsToUndo lastObject] mutableCopy];
-  [self.compositionsToUndo removeLastObject];
+-(void)redoLatestUndoWithCompletion:(void (^)(BOOL))completion {
+  [self.undoManager redo];
+    self.composition = [self.immutableComposition mutableCopy];
+  [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
+  [self updateObservers];
+  completion(YES);
 }
 
 @end
