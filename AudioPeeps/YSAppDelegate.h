@@ -15,6 +15,7 @@
 @property (nonatomic) NSWindow * audioWindow;
 @property (nonatomic) PSAudioVC * audioVC;
 
-
+-(IBAction)undoLink:(id)sender;
+-(IBAction)redoLink:(id)sender;
 
 @end

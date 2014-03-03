@@ -14,12 +14,20 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 
-    self.audioVC = [[PSAudioVC alloc] initWithNibName:@"PSAudioVC" bundle:nil];
-    
+    self.audioVC = [[PSAudioVC alloc] initWithNibName:@"PSAudioVC" bundle:nil];  
     [self.window.contentView addSubview:self.audioVC.view];
     self.audioVC.view.frame = ((NSView*)self.window.contentView).bounds;
-    
+  
+  
+  
 }
 
+-(IBAction)undoLink:(id)sender {
+  [self.audioVC undoLastChange:sender];
+}
+
+-(IBAction)redoLink:(id)sender {
+  [self.audioVC redoLastUndo:sender];
+}
 
 @end

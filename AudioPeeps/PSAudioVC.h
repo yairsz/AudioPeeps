@@ -13,4 +13,7 @@
 
 @interface PSAudioVC : NSViewController
 
+-(IBAction)redoLastUndo:(id)sender;
+-(IBAction)undoLastChange:(id)sender;
+
 @end

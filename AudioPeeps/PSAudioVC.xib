@@ -191,5 +191,19 @@
                 </button>
             </subviews>
         </customView>
+        <menu id="3a8-Bj-87n">
+            <items>
+                <menuItem title="Hello" id="Hx7-1T-pfa">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Yay" id="mPw-ig-5Ho">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Howdy" id="jch-Bg-JF7">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+            </items>
+            <accessibility description="Main"/>
+        </menu>
     </objects>
 </document>
