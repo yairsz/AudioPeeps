@@ -20,6 +20,8 @@
 @interface PSAudioEditor : NSObject
 
 @property (strong, nonatomic) AVMutableComposition * composition;
+@property (strong, nonatomic) AVComposition *immutableComposition;
+
 @property (unsafe_unretained) id <PSAudioEditorDelegate> delegate;
 
 
@@ -35,4 +37,7 @@
 - (void) loadFile: (NSURL *) fileURL completion:(void(^)(BOOL success))completion;
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
 - (NSString *) fileDuration;
+
+-(void)undoAllChangesWithCompletion:(void (^)(BOOL success))completion;
+
 @end

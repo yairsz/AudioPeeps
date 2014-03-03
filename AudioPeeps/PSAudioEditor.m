@@ -8,6 +8,7 @@
 
 #import "PSAudioEditor.h"
 #import "Constants.h"
+
 @interface PSAudioEditor()
 {
     NSURL * soundFileURL;
@@ -107,8 +108,19 @@
     
     [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
     [self updateObservers];
-    
+  
+    self.immutableComposition = [self.composition copy];
+  
     completion(YES);
+}
+
+-(void)undoAllChangesWithCompletion:(void (^)(BOOL))completion {
+  self.composition = [self.immutableComposition mutableCopy];
+  
+  [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
+  [self updateObservers];
+  
+  completion(YES);
 }
 
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
