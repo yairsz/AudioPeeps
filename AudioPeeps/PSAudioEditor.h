@@ -36,12 +36,11 @@
 - (void) loadFile: (NSURL *) fileURL completion:(void(^)(BOOL success))completion;
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
 - (NSString *) fileDuration;
-<<<<<<< HEAD
 - (void) loadIntro: (NSURL *) introURL completion:(void(^)(BOOL success))completion;
 - (void) loadOutro: (NSURL *) outroURL completion:(void(^)(BOOL success))completion;
-=======
+
 -(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion;
->>>>>>> 699c129fcdf45e33bd72406cd04003c5314b109f
+
 
   // undo and redo
 -(void)undoLatestOperationWithCompletion:(void (^)(BOOL success))completion;
