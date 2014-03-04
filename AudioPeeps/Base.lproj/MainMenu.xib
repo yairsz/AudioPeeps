@@ -127,13 +127,13 @@
                         <items>
                             <menuItem title="Undo" enabled="NO" keyEquivalent="z" id="207">
                                 <connections>
-                                    <action selector="undoLink:" target="494" id="lZR-4C-Fke"/>
+                                    <action selector="undoLastChange:" target="zA6-R3-qfW" id="n8q-xJ-tai"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Redo" enabled="NO" keyEquivalent="Z" id="215">
                                 <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
                                 <connections>
-                                    <action selector="redoLink:" target="494" id="meY-Fb-ZPo"/>
+                                    <action selector="redoLastUndo:" target="zA6-R3-qfW" id="js6-aS-MPn"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="206">
@@ -650,7 +650,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="390" width="480" height="360"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
             <view key="contentView" id="372">
                 <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -662,5 +662,6 @@
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>
+        <customObject id="zA6-R3-qfW" customClass="PSAudioVC"/>
     </objects>
 </document>

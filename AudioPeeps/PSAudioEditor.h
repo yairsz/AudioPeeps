@@ -24,6 +24,9 @@
 @property (unsafe_unretained) id <PSAudioEditorDelegate> delegate;
 @property BOOL mixInputParameter1On;
 
+@property (strong, nonatomic) AVPlayer * player;
+@property (nonatomic) CGFloat playhead;
+
 //Transport
 - (void) play;
 - (void) pause;
