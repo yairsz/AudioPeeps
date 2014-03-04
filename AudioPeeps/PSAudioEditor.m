@@ -192,18 +192,33 @@
     completion(YES);
 }
 
+- (void) loadIntro:(NSURL *)introURL completion:(void(^)(BOOL success))completion
+{
+    
+}
+
+- (void) loadOutro:(NSURL *)outro completion:(void(^)(BOOL success))completion
+{
+    
+    
+}
+
+
 -(void)updatePlayerItem {
   [self.playerItem setAudioMix:self.audioMix];
   [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
   [self.audioMix setInputParameters:@[self.mixInputParameter1]];
 }
 
+
+#pragma mark - Edit Methods
+
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
 {
     AVMutableCompositionTrack * compositionTrack = [[self.composition tracks] lastObject];
   
-    CMTime inTime = CMTimeMake(self.composition.duration.value * punchIn, self.composition.duration.timescale);
-    CMTime outTime = CMTimeMake(self.composition.duration.value * punchOut, self.composition.duration.timescale);
+    CMTime inTime = [self timeFromFloat:punchIn];
+    CMTime outTime = [self timeFromFloat:punchOut];
     
     [compositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
   
@@ -218,16 +233,6 @@
 }
 
 
-- (void) loadIntro:(NSURL *)introURL completion:(void(^)(BOOL success))completion
-{
-    
-}
-
-- (void) loadOutro:(NSURL *)outro completion:(void(^)(BOOL success))completion
-{
-    
-    
-}
 
 #pragma mark - Utility Methods
 
@@ -263,6 +268,11 @@
                                           [weakSelf.delegate playerDidFinishPLaying];
                                           [weakSelf stop];
                                       }];
+}
+
+- (CMTime) timeFromFloat:(float) number
+{
+    return CMTimeMake(self.composition.duration.value * number, self.composition.duration.timescale);
 }
 
 #pragma mark - undo methods

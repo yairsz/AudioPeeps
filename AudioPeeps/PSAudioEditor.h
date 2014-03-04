@@ -34,10 +34,16 @@
 - (void) seekToTime:(float)seekTime;
 - (BOOL) isPlaying;
 
+//Edit
+
+- (void) copyAudioFrom:(float) punchIn to:(float) punchOut;
+- (void) pasteAudioAt: (float) time;
+- (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
+
+
 
 //File
 - (void) loadFile: (NSURL *) fileURL completion:(void(^)(BOOL success))completion;
-- (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
 - (NSString *) fileDuration;
 - (void) loadIntro: (NSURL *) introURL completion:(void(^)(BOOL success))completion;
 - (void) loadOutro: (NSURL *) outroURL completion:(void(^)(BOOL success))completion;
