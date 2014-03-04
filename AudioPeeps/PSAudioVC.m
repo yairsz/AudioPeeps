@@ -129,9 +129,9 @@
 
 -(void)updateMixInputButtons {
   if (self.audioEditor.mixInputParameter1On) {
-    [self.mixInput1 setTitle:@"Mix 1 is on"];
+    [self.mixInput1 setTitle:@"MixIn1 on"];
   } else {
-    [self.mixInput1 setTitle:@"Mix 1 is off"];
+    [self.mixInput1 setTitle:@"MixIn1 off"];
   }
 }
 
@@ -182,6 +182,7 @@
                 self.audioPlayerState = kAudioPlayerStopped;
                 [self updatePlayerButtonStatus];
               [self updateUndoAndRedoStatus];
+              [self updateMixInputButtons];
                 }];
         } else {
             return;

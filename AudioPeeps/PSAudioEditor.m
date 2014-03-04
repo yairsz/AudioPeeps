@@ -144,7 +144,7 @@
 
 
 -(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion {
-  CMTime fullVolumeTime = CMTimeMake(self.composition.duration.value * 0.1f, self.composition.duration.timescale);
+  CMTime fullVolumeTime = CMTimeMake(self.composition.duration.value * 0.07f, self.composition.duration.timescale);
   if (self.mixInputParameter1On) { // it's on, turn off
     [self.mixInputParameter1 setVolumeRampFromStartVolume:1.f toEndVolume:1.f timeRange:CMTimeRangeMake(kCMTimeZero, fullVolumeTime)];
     [self updatePlayerItem];
