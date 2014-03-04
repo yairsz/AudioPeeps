@@ -7,19 +7,18 @@
 //
 
 #import "PSAudioEditor.h"
+#import "PSAudioTapProcessor.h"
 #import "Constants.h"
 
-@interface PSAudioEditor()
+@interface PSAudioEditor() <PSAudioEditorDelegate>
 {
     NSURL * soundFileURL;
     
 }
 
 @property (strong, nonatomic) AVURLAsset * asset;
-@property (strong, nonatomic) AVMutableAudioMix *audioMix;
 @property (strong, nonatomic) AVPlayerItem *playerItem;
-@property (nonatomic) MTAudioProcessingTapRef tap1;
-@property (strong, nonatomic) AVMutableAudioMixInputParameters *mixInputParameter1;
+@property (strong, nonatomic) PSAudioTapProcessor *tapProcessor;
 @property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
 @property (nonatomic) CMTime duration;
 
@@ -94,23 +93,6 @@
     return _player;
 }
 
--(AVMutableAudioMix *)audioMix {
-  if (!_audioMix) {
-    _audioMix = [AVMutableAudioMix new];
-  }
-  return _audioMix;
-}
-
--(AVMutableAudioMixInputParameters *)mixInputParameter1 {
-    // only called after 
-  if (!_mixInputParameter1) {
-    _mixInputParameter1 = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:[[self.composition tracks] lastObject]];
-    self.tap1 = self.mixInputParameter1.audioTapProcessor;
-  }
-  return _mixInputParameter1;
-}
-
-
 - (void) setPlayhead:(CGFloat)playhead
 {
     _playhead = playhead;
@@ -151,16 +133,14 @@
 
 
 -(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion {
-  CMTime fullVolumeTime = CMTimeMake(self.composition.duration.value * 0.07f, self.composition.duration.timescale);
   if (self.mixInputParameter1On) { // it's on, turn off
-    [self.mixInputParameter1 setVolumeRampFromStartVolume:1.f toEndVolume:1.f timeRange:CMTimeRangeMake(kCMTimeZero, fullVolumeTime)];
-    [self updatePlayerItem];
     self.mixInputParameter1On = NO;
+    self.tapProcessor.enableMixInput1Filter = NO;
   } else { // it's off, turn on
-    [self.mixInputParameter1 setVolumeRampFromStartVolume:0.f toEndVolume:1.f timeRange:CMTimeRangeMake(kCMTimeZero, fullVolumeTime)];
-    [self updatePlayerItem];
     self.mixInputParameter1On = YES;
+    self.tapProcessor.enableMixInput1Filter = YES;
   }
+  [self updatePlayerItem];
   completion(YES);
 }
 
@@ -178,11 +158,12 @@
     self.asset = [[AVURLAsset alloc] initWithURL:fileURL options:options];
     
     AVAssetTrack * audioAssetTrack = [[self.asset tracksWithMediaType:AVMediaTypeAudio] lastObject];
-    
+  
     AVMutableCompositionTrack * compositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-    
+  
     [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
   
+  self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:compositionTrack];
   self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
   
   [self updatePlayerItem];
@@ -195,9 +176,8 @@
 }
 
 -(void)updatePlayerItem {
-  [self.playerItem setAudioMix:self.audioMix];
+  [self.playerItem setAudioMix:self.tapProcessor.audioMix];
   [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
-  [self.audioMix setInputParameters:@[self.mixInputParameter1]];
 }
 
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut

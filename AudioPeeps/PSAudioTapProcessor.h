@@ -7,30 +7,17 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class AVAudioMix;
-@class AVAssetTrack;
-
-@protocol AudioTapProcessorDelegate;
+#import <AVFoundation/AVFoundation.h>
 
 @interface PSAudioTapProcessor : NSObject
 
-- (id)initWithAudioAssetTrack:(AVAssetTrack *)audioAssetTrack;
+- (id)initWithTrack:(AVMutableCompositionTrack *)compositionTrack;
 
   // Properties
-@property (readonly, nonatomic) AVAssetTrack *audioAssetTrack;
-@property (readonly, nonatomic) AVAudioMix *audioMix;
-@property (unsafe_unretained, nonatomic) id <AudioTapProcessorDelegate> delegate;
-@property (nonatomic, getter = isBandpassFilterEnabled) BOOL enableBandpassFilter;
+@property (readonly, nonatomic) AVMutableCompositionTrack *compositionTrack;
+@property (readonly, nonatomic) AVMutableAudioMix *audioMix;
+@property (nonatomic, getter = isMixInput1Enabled) BOOL enableMixInput1Filter;
 @property (nonatomic) float centerFrequency; // 0 to 1
 @property (nonatomic) float bandwidth; // 0 to 1
-
-@end
-
-@protocol AudioTapProcessorDelegate <NSObject>
-
-- (void)audioTapProcessor:(PSAudioTapProcessor *)audioTapProcessor
-   hasNewLeftChannelValue:(float)leftChannelValue
-        rightChannelValue:(float)rightChannelValue;
 
 @end

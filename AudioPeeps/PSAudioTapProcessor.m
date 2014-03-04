@@ -7,7 +7,6 @@
 //
 
 #import "PSAudioTapProcessor.h"
-#import <AVFoundation/AVFoundation.h>
 #import "Constants.h"
 
   // This struct is used to pass along data between the MTAudioProcessingTap callbacks.
@@ -33,51 +32,49 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
 static OSStatus AU_RenderCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
 
 @interface PSAudioTapProcessor () {
-	AVAudioMix *_audioMix;
+	AVMutableAudioMix *_audioMix;
 }
 
 @end
 
 @implementation PSAudioTapProcessor
 
--(id)initWithAudioAssetTrack:(AVAssetTrack *)audioAssetTrack {
-	NSParameterAssert(audioAssetTrack && [audioAssetTrack.mediaType isEqualToString:AVMediaTypeAudio]);
+-(id)initWithTrack:(AVMutableCompositionTrack *)compositionTrack {
+	NSParameterAssert(compositionTrack && [compositionTrack.mediaType isEqualToString:AVMediaTypeAudio]);
 	self = [super init];
 	
 	if (self) {
-		_audioAssetTrack = audioAssetTrack;
-		_centerFrequency = (4980.0f / 23980.0f); // equals 5000 Hz (assuming sample rate is 48k)
-		_bandwidth = (500.0f / 11900.0f); // equals 600 Cents
+		_compositionTrack = compositionTrack;
+		self.centerFrequency = (4980.0f / 23980.0f); // equals 5000 Hz (assuming sample rate is 48k)
+		self.bandwidth = (500.0f / 11900.0f); // equals 600 Cents
 	}
 	return self;
 }
 
 #pragma mark - Properties
 
--(AVAudioMix *)audioMix {
+-(AVMutableAudioMix *)audioMix {
 	if (!_audioMix) {
-		AVMutableAudioMix *audioMix = [AVMutableAudioMix audioMix];
-		if (audioMix) {
-			AVMutableAudioMixInputParameters *audioMixInputParameters = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:self.audioAssetTrack];
-			if (audioMixInputParameters) {
-				MTAudioProcessingTapCallbacks callbacks;
-				callbacks.version = kMTAudioProcessingTapCallbacksVersion_0;
-				callbacks.clientInfo = (__bridge void *)self,
-				callbacks.init = tap_InitCallback;
-				callbacks.finalize = tap_FinalizeCallback;
-				callbacks.prepare = tap_PrepareCallback;
-				callbacks.unprepare = tap_UnprepareCallback;
-				callbacks.process = tap_ProcessCallback;
-				
-				MTAudioProcessingTapRef audioProcessingTap;
-				if (noErr == MTAudioProcessingTapCreate(kCFAllocatorDefault, &callbacks, kMTAudioProcessingTapCreationFlag_PreEffects, &audioProcessingTap)) {
-					audioMixInputParameters.audioTapProcessor = audioProcessingTap;
-					
-					CFRelease(audioProcessingTap);
-					
-					audioMix.inputParameters = @[audioMixInputParameters];
-					_audioMix = audioMix;
-				}
+		AVMutableAudioMix *audioMix = [AVMutableAudioMix new];
+    AVMutableAudioMixInputParameters *audioMixInputParameters = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:self.compositionTrack];
+    if (audioMixInputParameters) {
+      MTAudioProcessingTapCallbacks callbacks;
+      callbacks.version = kMTAudioProcessingTapCallbacksVersion_0;
+      callbacks.clientInfo = (__bridge void *)self,
+      callbacks.init = tap_InitCallback;
+      callbacks.finalize = tap_FinalizeCallback;
+      callbacks.prepare = tap_PrepareCallback;
+      callbacks.unprepare = tap_UnprepareCallback;
+      callbacks.process = tap_ProcessCallback;
+      
+      MTAudioProcessingTapRef audioProcessingTap;
+      if (noErr == MTAudioProcessingTapCreate(kCFAllocatorDefault, &callbacks, kMTAudioProcessingTapCreationFlag_PreEffects, &audioProcessingTap)) {
+        audioMixInputParameters.audioTapProcessor = audioProcessingTap;
+        
+        CFRelease(audioProcessingTap);
+        
+        audioMix.inputParameters = @[audioMixInputParameters];
+        _audioMix = audioMix;
 			}
 		}
 	}
@@ -125,18 +122,6 @@ static OSStatus AU_RenderCallback(void *inRefCon, AudioUnitRenderActionFlags *io
 	}
 }
 
-#pragma mark -
-
--(void)updateLeftChannelVolume:(float)leftChannelVolume rightChannelVolume:(float)rightChannelVolume {
-	@autoreleasepool {
-		dispatch_async(dispatch_get_main_queue(), ^{
-        // Forward left and right channel volume to delegate.
-			if (self.delegate && [self.delegate respondsToSelector:@selector(audioTapProcessor:hasNewLeftChannelValue:rightChannelValue:)])
-				[self.delegate audioTapProcessor:self hasNewLeftChannelValue:leftChannelVolume rightChannelValue:rightChannelVolume];
-		});
-	}
-}
-
 @end
 
 #pragma mark - MTAudioProcessingTap Callbacks
@@ -155,14 +140,12 @@ static void tap_InitCallback(MTAudioProcessingTapRef tap, void *clientInfo, void
 	
 	*tapStorageOut = context;
 }
-
 static void tap_FinalizeCallback(MTAudioProcessingTapRef tap) {
 	AVAudioTapProcessorContext *context = (AVAudioTapProcessorContext *)MTAudioProcessingTapGetStorage(tap);
     // Clear MTAudioProcessingTap context.
 	context->self = NULL;
 	free(context);
 }
-
 static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFrames, const AudioStreamBasicDescription *processingFormat) {
 	AVAudioTapProcessorContext *context = (AVAudioTapProcessorContext *)MTAudioProcessingTapGetStorage(tap);
 	
@@ -238,7 +221,6 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 		}
 	}
 }
-
 static void tap_UnprepareCallback(MTAudioProcessingTapRef tap) {
 	AVAudioTapProcessorContext *context = (AVAudioTapProcessorContext *)MTAudioProcessingTapGetStorage(tap);
 	/* Release bandpass filter Audio Unit */
@@ -248,7 +230,6 @@ static void tap_UnprepareCallback(MTAudioProcessingTapRef tap) {
 		context->audioUnit = NULL;
 	}
 }
-
 static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberFrames, MTAudioProcessingTapFlags flags, AudioBufferList *bufferListInOut, CMItemCount *numberFramesOut, MTAudioProcessingTapFlags *flagsOut) {
 	AVAudioTapProcessorContext *context = (AVAudioTapProcessorContext *)MTAudioProcessingTapGetStorage(tap);
 	
@@ -261,7 +242,7 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
 	
 	PSAudioTapProcessor *self = ((__bridge PSAudioTapProcessor *)context->self);
 	
-	if (self.isBandpassFilterEnabled) {
+	if (self.isMixInput1Enabled) {
       // Apply bandpass filter Audio Unit.
 		AudioUnit audioUnit = context->audioUnit;
 		if (audioUnit) {
@@ -312,8 +293,6 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
 			context->rightChannelVolume = rms;
 		}
 	}
-    // Pass calculated left and right channel volume to VU meters.
-	[self updateLeftChannelVolume:context->leftChannelVolume rightChannelVolume:context->rightChannelVolume];
 }
 
 #pragma mark - Audio Unit Callbacks
