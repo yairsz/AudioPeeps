@@ -17,4 +17,6 @@
 -(IBAction)redoLastUndo:(id)sender;
 -(IBAction)undoLastChange:(id)sender;
 
+@property (nonatomic) CGFloat playTime;
+
 @end
