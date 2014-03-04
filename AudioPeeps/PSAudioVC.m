@@ -15,12 +15,15 @@
 
 @interface PSAudioVC () <PSAudioEditorDelegate>
 
+@property AudioPlayerState audioPlayerState;
+
 @property (weak,nonatomic) IBOutlet NSButton * deleteSelectionButton;
 @property (weak,nonatomic) IBOutlet NSButton * stopButton;
 @property (weak,nonatomic) IBOutlet NSButton * exportButton;
 @property (weak,nonatomic) IBOutlet NSButton * playButton;
 @property (weak) IBOutlet NSButton *redoButton;
 @property (weak) IBOutlet NSButton *undoButton;
+@property (weak) IBOutlet NSButton *mixInput1;
 
 @property (weak,nonatomic) IBOutlet NSPopUpButton * formatsPopUp;
 @property (weak,nonatomic) IBOutlet NSTextField * durationTextField;
@@ -43,6 +46,8 @@
 
 @implementation PSAudioVC
 
+#pragma mark - init, view, and accessor methods
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -61,16 +66,26 @@
 
 - (void) viewDidLoad
 {
+<<<<<<< HEAD
     self.introWell.draggingDelegate = self;
     self.outroWell.draggingDelegate = self;
     
+=======
+  
+>>>>>>> 699c129fcdf45e33bd72406cd04003c5314b109f
     [self.formatsPopUp addItemsWithTitles:AVAILABLE_FORMATS];
     self.fileType = [self fileTypeForIndex:0];
     self.fileExtension = [EXTENSIONS objectAtIndex:0];
     self.punchInValue = 0.0;
     self.punchOutValue = 1.0;
+<<<<<<< HEAD
     
     [self updateButtonStatus];
+=======
+  self.audioPlayerState = kAudioPlayerNoFile;
+  [self updatePlayerButtonStatus];
+  [self updateUndoAndRedoStatus];
+>>>>>>> 699c129fcdf45e33bd72406cd04003c5314b109f
     
 }
 
@@ -83,7 +98,52 @@
     return _audioEditor;
 }
 
--(void)updateButtonStatus {
+-(void)updatePlayerButtonStatus {
+  switch (self.audioPlayerState) {
+    case kAudioPlayerNoFile:
+      [self.playButton setEnabled:NO];
+      [self.playButton setTitle:@"Play"];
+      [self.stopButton setEnabled:NO];
+      [self.deleteSelectionButton setEnabled:NO];
+      [self.exportButton setEnabled:NO];
+      [self.mixInput1 setEnabled:NO];
+      break;
+    case kAudioPlayerStopped:
+      [self.playButton setEnabled:YES];
+      [self.playButton setTitle:@"Play"];
+      [self.stopButton setEnabled:NO];
+      [self.deleteSelectionButton setEnabled:YES];
+      [self.exportButton setEnabled:YES];
+      [self.mixInput1 setEnabled:YES];
+      break;
+    case kAudioPlayerPlaying:
+      [self.playButton setEnabled:YES];
+      [self.playButton setTitle:@"Pause"];
+      [self.stopButton setEnabled:YES];
+      [self.deleteSelectionButton setEnabled:NO];
+      [self.exportButton setEnabled:NO];
+      [self.mixInput1 setEnabled:YES];
+      break;
+    case kAudioPlayerPaused:
+      [self.playButton setEnabled:YES];
+      [self.playButton setTitle:@"Unpause"];
+      [self.stopButton setEnabled:YES];
+      [self.deleteSelectionButton setEnabled:NO];
+      [self.exportButton setEnabled:NO];
+      [self.mixInput1 setEnabled:YES];
+      break;
+  }
+}
+
+-(void)updateMixInputButtons {
+  if (self.audioEditor.mixInputParameter1On) {
+    [self.mixInput1 setTitle:@"Mix 1 is on"];
+  } else {
+    [self.mixInput1 setTitle:@"Mix 1 is off"];
+  }
+}
+
+-(void)updateUndoAndRedoStatus {
   if ([self.audioEditor.undoManager canUndo]) {
     [self.undoButton setEnabled:YES];
   } else {
@@ -96,7 +156,10 @@
   }
 }
 
+#pragma mark - player methods
+
 - (IBAction)loadPressed:(NSButton *)sender {
+<<<<<<< HEAD
     
     
     // Create the File Open Dialog class.
@@ -128,36 +191,55 @@
         } else {
             return;
         }
+=======
+    NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"Stravinsky.m4a"];
+    NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
+    NSLog(@"%@", soundFileURL);
+    [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
+      [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+      self.audioPlayerState = kAudioPlayerStopped;
+      [self updatePlayerButtonStatus];
+>>>>>>> 699c129fcdf45e33bd72406cd04003c5314b109f
     }];
 }
 
 - (IBAction)playPressed:(id)sender {
-    
     if ([self.audioEditor isPlaying]) {
         [self.audioEditor pause];
-        [self.playButton setTitle:@"Play"];
-        [self.stopButton setEnabled:NO];
+      self.audioPlayerState = kAudioPlayerPaused;
     } else {
         [self.audioEditor play];
         [self.stopButton setEnabled:YES];
-        [self.playButton setTitle:@"Pause"];
+      self.audioPlayerState = kAudioPlayerPlaying;
     }
-    
-}
-
-- (IBAction)deletePressed:(id)sender {
-    
-    [self.audioEditor deleteAudioFrom:self.punchInValue to:self.punchOutValue];
-    [self.exportButton setEnabled:YES];
-    [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
-  [self updateButtonStatus];
+  [self updatePlayerButtonStatus];
 }
 
 - (IBAction)stopPressed:(id)sender {
-    
-    [self.audioEditor stop];
-    [self.stopButton setEnabled:NO];
-    [self.playButton setTitle:@"Play"];
+  [self.audioEditor stop];
+  self.audioPlayerState = kAudioPlayerStopped;
+  [self updatePlayerButtonStatus];
+}
+
+- (void) playerDidFinishPLaying
+{
+  self.audioPlayerState = kAudioPlayerStopped;
+  [self updatePlayerButtonStatus];
+}
+
+- (IBAction)mixInput1Pressed:(id)sender {
+  [self.audioEditor toggleMixInputParameter1WithCompletion:^(BOOL success) {
+    [self updateMixInputButtons];
+  }];
+}
+
+#pragma mark - change state methods
+
+- (IBAction)deletePressed:(id)sender {
+  
+  [self.audioEditor deleteAudioFrom:self.punchInValue to:self.punchOutValue];
+  [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+  [self updateUndoAndRedoStatus];
 }
 
 - (IBAction)export:(id)sender {
@@ -192,28 +274,23 @@
     
 }
 
-- (IBAction)formatChangedValue:(NSPopUpButton *)sender
-{
-    NSInteger index = [sender indexOfSelectedItem];
-    self.fileType = [self fileTypeForIndex: index];
-    self.fileExtension = [EXTENSIONS objectAtIndex:index];
-}
-
-
+#pragma mark - undo and redo methods
 
 -(IBAction)redoLastUndo:(id)sender {
   [self.audioEditor redoLatestUndoWithCompletion:^(BOOL success) {
     [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
-    [self updateButtonStatus];
+    [self updateUndoAndRedoStatus];
   }];
 }
 
 -(IBAction)undoLastChange:(id)sender {
   [self.audioEditor undoLatestOperationWithCompletion:^(BOOL success) {
     [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
-    [self updateButtonStatus];
+    [self updateUndoAndRedoStatus];
   }];
 }
+
+#pragma mark - slider and popup change methods
 
 - (IBAction)seekSliderChangedValue:(NSSlider *)sender {
   [self.audioEditor seekToTime:sender.floatValue];
@@ -229,6 +306,15 @@
     self.punchOutValue = sender.floatValue;
 }
 
+- (IBAction)formatChangedValue:(NSPopUpButton *)sender
+{
+  NSInteger index = [sender indexOfSelectedItem];
+  self.fileType = [self fileTypeForIndex: index];
+  self.fileExtension = [EXTENSIONS objectAtIndex:index];
+}
+
+#pragma mark - file helper methods
+
 - (NSString *) fileTypeForIndex:(NSInteger) index
 {
     NSString * formatKey = [AVAILABLE_FORMATS objectAtIndex:index];
@@ -241,13 +327,6 @@
     [self.currentTimeTextField setStringValue:currentTime];
     [self.seekSlider setFloatValue:value];
 }
-
-- (void) playerDidFinishPLaying
-{
-    [self.stopButton setEnabled:NO];
-    [self.playButton setTitle:@"Play"];
-}
-
 
 - (NSString *) docsPath
 {

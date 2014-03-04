@@ -65,3 +65,10 @@
 
 
 #endif
+
+typedef enum audioPlayerStates {
+  kAudioPlayerNoFile,
+  kAudioPlayerStopped,
+  kAudioPlayerPlaying,
+  kAudioPlayerPaused
+} AudioPlayerState;
