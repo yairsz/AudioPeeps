@@ -75,7 +75,6 @@
     self.punchInValue = 0.0;
     self.punchOutValue = 1.0;
     
-    [self updatePlayerButtonStatus];
     self.audioPlayerState = kAudioPlayerNoFile;
     [self updatePlayerButtonStatus];
     [self updateUndoAndRedoStatus];
@@ -119,10 +118,10 @@
       break;
     case kAudioPlayerPaused:
       [self.playButton setEnabled:YES];
-      [self.playButton setTitle:@"Unpause"];
+      [self.playButton setTitle:@"Play"];
       [self.stopButton setEnabled:YES];
       [self.deleteSelectionButton setEnabled:NO];
-      [self.exportButton setEnabled:NO];
+      [self.exportButton setEnabled:YES];
       [self.mixInput1 setEnabled:YES];
       break;
   }
@@ -180,18 +179,13 @@
                 [self.deleteSelectionButton setEnabled:YES];
                 [self.exportButton setEnabled:YES];
                 [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+                self.audioPlayerState = kAudioPlayerStopped;
+                [self updatePlayerButtonStatus];
                 }];
         } else {
             return;
         }
-        NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"Stravinsky.m4a"];
-        NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
-        NSLog(@"%@", soundFileURL);
-        [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
-        [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
-        self.audioPlayerState = kAudioPlayerStopped;
-        [self updatePlayerButtonStatus];
-        }];
+
     }];
 }
 
@@ -258,12 +252,6 @@
             return;
         }
     }];
-
-    
-    
-    
-    
-    
 }
 
 #pragma mark - undo and redo methods
