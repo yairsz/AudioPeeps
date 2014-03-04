@@ -22,7 +22,7 @@
 @property (strong, nonatomic) AVMutableComposition * composition;
 @property (strong, nonatomic) NSUndoManager *undoManager;
 @property (unsafe_unretained) id <PSAudioEditorDelegate> delegate;
-
+@property BOOL mixInputParameter1On;
 
 //Transport
 - (void) play;
@@ -36,6 +36,7 @@
 - (void) loadFile: (NSURL *) fileURL completion:(void(^)(BOOL success))completion;
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
 - (NSString *) fileDuration;
+-(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion;
 
   // undo and redo
 -(void)undoLatestOperationWithCompletion:(void (^)(BOOL success))completion;

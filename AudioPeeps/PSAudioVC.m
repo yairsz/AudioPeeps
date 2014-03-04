@@ -23,6 +23,7 @@
 @property (weak,nonatomic) IBOutlet NSButton * playButton;
 @property (weak) IBOutlet NSButton *redoButton;
 @property (weak) IBOutlet NSButton *undoButton;
+@property (weak) IBOutlet NSButton *mixInput1;
 
 @property (weak,nonatomic) IBOutlet NSPopUpButton * formatsPopUp;
 @property (weak,nonatomic) IBOutlet NSTextField * durationTextField;
@@ -91,6 +92,7 @@
       [self.stopButton setEnabled:NO];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
+      [self.mixInput1 setEnabled:NO];
       break;
     case kAudioPlayerStopped:
       [self.playButton setEnabled:YES];
@@ -98,6 +100,7 @@
       [self.stopButton setEnabled:NO];
       [self.deleteSelectionButton setEnabled:YES];
       [self.exportButton setEnabled:YES];
+      [self.mixInput1 setEnabled:YES];
       break;
     case kAudioPlayerPlaying:
       [self.playButton setEnabled:YES];
@@ -105,6 +108,7 @@
       [self.stopButton setEnabled:YES];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
+      [self.mixInput1 setEnabled:YES];
       break;
     case kAudioPlayerPaused:
       [self.playButton setEnabled:YES];
@@ -112,7 +116,16 @@
       [self.stopButton setEnabled:YES];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
+      [self.mixInput1 setEnabled:YES];
       break;
+  }
+}
+
+-(void)updateMixInputButtons {
+  if (self.audioEditor.mixInputParameter1On) {
+    [self.mixInput1 setTitle:@"Mix 1 is on"];
+  } else {
+    [self.mixInput1 setTitle:@"Mix 1 is off"];
   }
 }
 
@@ -164,6 +177,12 @@
 {
   self.audioPlayerState = kAudioPlayerStopped;
   [self updatePlayerButtonStatus];
+}
+
+- (IBAction)mixInput1Pressed:(id)sender {
+  [self.audioEditor toggleMixInputParameter1WithCompletion:^(BOOL success) {
+    [self updateMixInputButtons];
+  }];
 }
 
 #pragma mark - change state methods

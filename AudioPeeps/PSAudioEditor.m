@@ -17,6 +17,9 @@
 
 @property (strong, nonatomic) AVURLAsset * asset;
 @property (strong, nonatomic) AVPlayer * player;
+@property (strong, nonatomic) AVMutableAudioMix *audioMix;
+@property (strong, nonatomic) AVPlayerItem *playerItem;
+@property (strong, nonatomic) AVMutableAudioMixInputParameters *mixInputParameter1;
 @property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
 @property (nonatomic) CMTime duration;
 
@@ -27,8 +30,11 @@
 
 @implementation PSAudioEditor
 
+#pragma mark - init and accessor methods
+
 - (PSAudioEditor *) init {
   if (self = [super init]) {
+    self.mixInputParameter1On = NO;
   }
   return self;
 }
@@ -47,6 +53,13 @@
         _composition = [AVMutableComposition composition];
     }
     return  _composition;
+}
+
+-(AVPlayerItem *)playerItem {
+  if (!_playerItem) {
+    _playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
+  }
+  return _playerItem;
 }
 
 -(void)setImmutableComposition:(AVComposition *)immutableComposition {
@@ -77,6 +90,22 @@
     return _player;
 }
 
+-(AVMutableAudioMix *)audioMix {
+  if (!_audioMix) {
+    _audioMix = [AVMutableAudioMix new];
+  }
+  return _audioMix;
+}
+
+-(AVMutableAudioMixInputParameters *)mixInputParameter1 {
+    // only called after 
+  if (!_mixInputParameter1) {
+    _mixInputParameter1 = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:[[self.composition tracks] lastObject]];
+  }
+  return _mixInputParameter1;
+}
+
+#pragma mark - player methods
 
 - (void) play
 {
@@ -101,6 +130,22 @@
     [self seekToTime:0.f];
 }
 
+#pragma mark - file methods
+
+-(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion {
+  CMTime fullVolumeTime = CMTimeMake(self.composition.duration.value * 0.1f, self.composition.duration.timescale);
+  if (self.mixInputParameter1On) { // it's on, turn off
+    [self.mixInputParameter1 setVolumeRampFromStartVolume:1.f toEndVolume:1.f timeRange:CMTimeRangeMake(kCMTimeZero, fullVolumeTime)];
+    [self updatePlayerItem];
+    self.mixInputParameter1On = NO;
+  } else { // it's off, turn on
+    [self.mixInputParameter1 setVolumeRampFromStartVolume:0.f toEndVolume:1.f timeRange:CMTimeRangeMake(kCMTimeZero, fullVolumeTime)];
+    [self updatePlayerItem];
+    self.mixInputParameter1On = YES;
+  }
+  completion(YES);
+}
+
 - (void) loadFile: (NSURL *) fileURL completion:(void (^)(BOOL))completion
 {
     self.composition = nil;
@@ -114,13 +159,22 @@
     AVMutableCompositionTrack * compositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
     
     [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
-    
-    [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
+  
+  self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
+  
+  [self updatePlayerItem];
   
   self.immutableComposition = [self.composition copy];
+  
     [self updateObservers];
   
     completion(YES);
+}
+
+-(void)updatePlayerItem {
+  [self.playerItem setAudioMix:self.audioMix];
+  [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
+  [self.audioMix setInputParameters:@[self.mixInputParameter1]];
 }
 
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
@@ -192,7 +246,7 @@
 
 -(void)redoLatestUndoWithCompletion:(void (^)(BOOL))completion {
   [self.undoManager redo];
-    self.composition = [self.immutableComposition mutableCopy];
+  self.composition = [self.immutableComposition mutableCopy];
   [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
   [self updateObservers];
   completion(YES);
