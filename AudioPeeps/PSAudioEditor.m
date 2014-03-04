@@ -67,7 +67,7 @@
 }
 
 -(void)setImmutableComposition:(AVComposition *)immutableComposition {
-  if (!_immutableComposition) {
+  if (!_immutableComposition || !immutableComposition) {
     _immutableComposition = immutableComposition;
   } else if (_immutableComposition != immutableComposition) {
       [self.undoManager registerUndoWithTarget:self selector:@selector(setImmutableComposition:) object:_immutableComposition];
@@ -163,7 +163,9 @@
 - (void) loadFile: (NSURL *) fileURL completion:(void (^)(BOOL))completion
 {
     self.composition = nil;
-    
+    self.immutableComposition = nil;
+    [self.undoManager removeAllActions];
+  
     NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
     
     self.asset = [[AVURLAsset alloc] initWithURL:fileURL options:options];
@@ -195,12 +197,12 @@
 {
     AVMutableCompositionTrack * compositionTrack = [[self.composition tracks] lastObject];
   
-  self.immutableComposition = [self.composition copy];
-  
     CMTime inTime = CMTimeMake(self.composition.duration.value * punchIn, self.composition.duration.timescale);
     CMTime outTime = CMTimeMake(self.composition.duration.value * punchOut, self.composition.duration.timescale);
     
     [compositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
+  
+    self.immutableComposition = [self.composition copy];
   
     [self updateObservers];
 }

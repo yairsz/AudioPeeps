@@ -181,6 +181,7 @@
                 [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
                 self.audioPlayerState = kAudioPlayerStopped;
                 [self updatePlayerButtonStatus];
+              [self updateUndoAndRedoStatus];
                 }];
         } else {
             return;
