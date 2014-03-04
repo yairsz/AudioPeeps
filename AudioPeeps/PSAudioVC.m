@@ -66,26 +66,19 @@
 
 - (void) viewDidLoad
 {
-<<<<<<< HEAD
     self.introWell.draggingDelegate = self;
     self.outroWell.draggingDelegate = self;
     
-=======
-  
->>>>>>> 699c129fcdf45e33bd72406cd04003c5314b109f
     [self.formatsPopUp addItemsWithTitles:AVAILABLE_FORMATS];
     self.fileType = [self fileTypeForIndex:0];
     self.fileExtension = [EXTENSIONS objectAtIndex:0];
     self.punchInValue = 0.0;
     self.punchOutValue = 1.0;
-<<<<<<< HEAD
     
-    [self updateButtonStatus];
-=======
-  self.audioPlayerState = kAudioPlayerNoFile;
-  [self updatePlayerButtonStatus];
-  [self updateUndoAndRedoStatus];
->>>>>>> 699c129fcdf45e33bd72406cd04003c5314b109f
+    [self updatePlayerButtonStatus];
+    self.audioPlayerState = kAudioPlayerNoFile;
+    [self updatePlayerButtonStatus];
+    [self updateUndoAndRedoStatus];
     
 }
 
@@ -159,7 +152,7 @@
 #pragma mark - player methods
 
 - (IBAction)loadPressed:(NSButton *)sender {
-<<<<<<< HEAD
+
     
     
     // Create the File Open Dialog class.
@@ -187,19 +180,18 @@
                 [self.deleteSelectionButton setEnabled:YES];
                 [self.exportButton setEnabled:YES];
                 [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
-            }];
+                }];
         } else {
             return;
         }
-=======
-    NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"Stravinsky.m4a"];
-    NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
-    NSLog(@"%@", soundFileURL);
-    [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
-      [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
-      self.audioPlayerState = kAudioPlayerStopped;
-      [self updatePlayerButtonStatus];
->>>>>>> 699c129fcdf45e33bd72406cd04003c5314b109f
+        NSString *soundFilePath = [[self docsPath] stringByAppendingPathComponent:@"Stravinsky.m4a"];
+        NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
+        NSLog(@"%@", soundFileURL);
+        [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
+        [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+        self.audioPlayerState = kAudioPlayerStopped;
+        [self updatePlayerButtonStatus];
+        }];
     }];
 }
 
@@ -212,7 +204,7 @@
         [self.stopButton setEnabled:YES];
       self.audioPlayerState = kAudioPlayerPlaying;
     }
-  [self updatePlayerButtonStatus];
+    [self updatePlayerButtonStatus];
 }
 
 - (IBAction)stopPressed:(id)sender {
