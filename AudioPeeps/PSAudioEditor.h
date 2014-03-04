@@ -36,6 +36,8 @@
 - (void) loadFile: (NSURL *) fileURL completion:(void(^)(BOOL success))completion;
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
 - (NSString *) fileDuration;
+- (void) loadIntro: (NSURL *) introURL completion:(void(^)(BOOL success))completion;
+- (void) loadOutro: (NSURL *) outroURL completion:(void(^)(BOOL success))completion;
 
   // undo and redo
 -(void)undoLatestOperationWithCompletion:(void (^)(BOOL success))completion;

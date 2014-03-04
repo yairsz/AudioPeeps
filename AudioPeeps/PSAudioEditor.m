@@ -33,6 +33,10 @@
   return self;
 }
 
+
+#pragma mark - Setters and Getters
+
+
 - (NSUndoManager *) undoManager
 {
     if (!_undoManager) {
@@ -76,6 +80,8 @@
 }
 
 
+#pragma mark - Transport Methods
+
 - (void) play
 {
     
@@ -98,6 +104,13 @@
     [self.player pause];
     [self seekToTime:0.f];
 }
+
+- (BOOL) isPlaying
+{
+    return self.player.rate;
+}
+
+#pragma mark - File Methods
 
 - (void) loadFile: (NSURL *) fileURL completion:(void (^)(BOOL))completion
 {
@@ -135,15 +148,25 @@
     [self updateObservers];
 }
 
-- (BOOL) isPlaying
-{
-    return self.player.rate;
-}
-
 - (NSString *) fileDuration{
     CMTime duration = self.player.currentItem.asset.duration;
     return [self stringFromTime:duration];
 }
+
+
+- (void) loadIntro:(NSURL *)introURL completion:(void(^)(BOOL success))completion
+{
+    
+}
+
+- (void) loadOutro:(NSURL *)outro completion:(void(^)(BOOL success))completion
+{
+    
+    
+}
+
+#pragma mark - Utility Methods
+
 
 - (NSString *)stringFromTime: (CMTime) time
 {
@@ -195,5 +218,7 @@
   [self updateObservers];
   completion(YES);
 }
+
+
 
 @end

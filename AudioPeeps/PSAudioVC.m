@@ -28,6 +28,9 @@
 @property (weak,nonatomic) IBOutlet NSSlider * punchInSlider;
 @property (weak,nonatomic) IBOutlet NSSlider * punchOutSlider;
 @property (weak,nonatomic) IBOutlet NSSlider * seekSlider;
+@property (weak,nonatomic) IBOutlet SSDragAudioImageView * introWell;
+@property (weak,nonatomic) IBOutlet SSDragAudioImageView * outroWell;
+
 @property (strong, nonatomic) PSAudioEditor * audioEditor;
 @property (strong, nonatomic) PSAudioExporter * audioExporter;
 @property (strong,nonatomic) NSString * fileType;
@@ -58,13 +61,16 @@
 
 - (void) viewDidLoad
 {
-        
+    self.introWell.draggingDelegate = self;
+    self.outroWell.draggingDelegate = self;
+    
     [self.formatsPopUp addItemsWithTitles:AVAILABLE_FORMATS];
     self.fileType = [self fileTypeForIndex:0];
     self.fileExtension = [EXTENSIONS objectAtIndex:0];
     self.punchInValue = 0.0;
     self.punchOutValue = 1.0;
-  [self updateButtonStatus];
+    
+    [self updateButtonStatus];
     
 }
 
@@ -97,7 +103,7 @@
     NSOpenPanel* openDlg = [NSOpenPanel openPanel];
     [openDlg setAllowsMultipleSelection:NO];
     
-    [openDlg setAllowedFileTypes:@[AVFileTypeAppleM4A, AVFileTypeAIFF, AVFileTypeWAVE]];
+    [openDlg setAllowedFileTypes:@[AVFileTypeAppleM4A, AVFileTypeAIFF, AVFileTypeAIFC, AVFileTypeWAVE]];
     
     // Enable the selection of files in the dialog.
     [openDlg setCanChooseFiles:YES];
@@ -251,5 +257,41 @@
 }
 
 
+
+- (BOOL) allowDragglableFile:(id<NSDraggingInfo>)sender {
+    
+    NSPasteboardItem *draggedItem = [[[sender draggingPasteboard] pasteboardItems] objectAtIndex:0];
+    NSString *type = [draggedItem types][0];
+    NSURL * fileURL = [NSURL URLWithString:[draggedItem stringForType:type]];
+    
+    id resourceValue;
+    [fileURL getResourceValue: &resourceValue
+                       forKey: NSURLTypeIdentifierKey
+                        error: nil];
+    
+    NSArray * fileTypes = [TYPES_DICT allKeys];
+    
+    if ([fileTypes containsObject:resourceValue]){
+        return YES;
+    } else {
+        return NO;
+    }
+    
+}
+
+- (BOOL) didDropFile:(id<NSDraggingInfo>)sender
+{
+    
+    NSPoint dragPoint =[sender draggingLocation];
+    if (dragPoint.x < self.view.frame.size.width/2) {
+//        NSLog(@"%@",@"Intro");
+        
+        
+    } else {
+//        NSLog(@"%@",@"Outro");
+    }
+    return YES;
+    
+}
 
 @end

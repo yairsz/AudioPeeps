@@ -10,8 +10,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>
 #import <AppKit/AppKit.h>
+#import "SSDragAudioImageView.h"
 
-@interface PSAudioVC : NSViewController
+@interface PSAudioVC : NSViewController <SSDragAudioImageViewDraggingDelegate>
 
 -(IBAction)redoLastUndo:(id)sender;
 -(IBAction)undoLastChange:(id)sender;
