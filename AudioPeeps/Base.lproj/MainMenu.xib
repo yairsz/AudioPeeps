@@ -123,14 +123,14 @@
                     </menu>
                 </menuItem>
                 <menuItem title="Edit" id="217">
-                    <menu key="submenu" title="Edit" id="205">
+                    <menu key="submenu" title="Edit" autoenablesItems="NO" id="205">
                         <items>
-                            <menuItem title="Undo" keyEquivalent="z" id="207">
+                            <menuItem title="Undo" enabled="NO" keyEquivalent="z" id="207">
                                 <connections>
                                     <action selector="undoLink:" target="494" id="lZR-4C-Fke"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Redo" keyEquivalent="Z" id="215">
+                            <menuItem title="Redo" enabled="NO" keyEquivalent="Z" id="215">
                                 <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
                                 <connections>
                                     <action selector="redoLink:" target="494" id="meY-Fb-ZPo"/>

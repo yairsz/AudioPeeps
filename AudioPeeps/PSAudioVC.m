@@ -23,6 +23,11 @@
 @property (weak,nonatomic) IBOutlet NSButton * playButton;
 @property (weak) IBOutlet NSButton *redoButton;
 @property (weak) IBOutlet NSButton *undoButton;
+
+@property (strong, nonatomic) NSMenu *editSubMenu;
+@property (strong, nonatomic) NSMenuItem *redoItem;
+@property (strong, nonatomic) NSMenuItem *undoItem;
+
 @property (weak) IBOutlet NSButton *mixInput1;
 
 @property (weak,nonatomic) IBOutlet NSPopUpButton * formatsPopUp;
@@ -52,9 +57,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        
-        
-        
+      
     }
     return self;
 }
@@ -68,7 +71,9 @@
 {
     self.introWell.draggingDelegate = self;
     self.outroWell.draggingDelegate = self;
-    
+  
+    [self assignPointersToMenuItems];
+  
     [self.formatsPopUp addItemsWithTitles:AVAILABLE_FORMATS];
     self.fileType = [self fileTypeForIndex:0];
     self.fileExtension = [EXTENSIONS objectAtIndex:0];
@@ -138,13 +143,17 @@
 -(void)updateUndoAndRedoStatus {
   if ([self.audioEditor.undoManager canUndo]) {
     [self.undoButton setEnabled:YES];
+    [self.undoItem setEnabled:YES];
   } else {
     [self.undoButton setEnabled:NO];
+    [self.undoItem setEnabled:NO];
   }
   if ([self.audioEditor.undoManager canRedo]) {
     [self.redoButton setEnabled:YES];
+    [self.redoItem setEnabled:YES];
   } else {
     [self.redoButton setEnabled:NO];
+    [self.redoItem setEnabled:NO];
   }
 }
 
@@ -353,6 +362,18 @@
     }
     return YES;
     
+}
+
+-(void)assignPointersToMenuItems {
+  NSMenu *mainMenu = [[NSApplication sharedApplication] mainMenu];
+  self.editSubMenu = [[mainMenu itemAtIndex:2] submenu];
+  for (NSMenuItem *item in [self.editSubMenu itemArray]) {
+    if ([item.title isEqualToString:@"Undo"]) {
+      self.undoItem = item;
+    } else if ([item.title isEqualToString:@"Redo"]) {
+      self.redoItem = item;
+    }
+  }
 }
 
 @end
