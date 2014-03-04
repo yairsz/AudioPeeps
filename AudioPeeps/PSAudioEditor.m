@@ -109,7 +109,6 @@
   return _mixInputParameter1;
 }
 
-#pragma mark - player methods
 
 #pragma mark - Transport Methods
 
@@ -136,15 +135,13 @@
     [self seekToTime:0.f];
 }
 
-<<<<<<< HEAD
+
 - (BOOL) isPlaying
 {
     return self.player.rate;
 }
 
-#pragma mark - File Methods
-=======
-#pragma mark - file methods
+
 
 -(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion {
   CMTime fullVolumeTime = CMTimeMake(self.composition.duration.value * 0.1f, self.composition.duration.timescale);
@@ -159,7 +156,9 @@
   }
   completion(YES);
 }
->>>>>>> 699c129fcdf45e33bd72406cd04003c5314b109f
+
+
+#pragma mark - File Methods
 
 - (void) loadFile: (NSURL *) fileURL completion:(void (^)(BOOL))completion
 {
