@@ -65,6 +65,7 @@
 - (void) loadView {
     [super loadView];
     [self viewDidLoad];
+    
 }
 
 - (void) viewDidLoad
@@ -95,7 +96,10 @@
     return _audioEditor;
 }
 
+
+
 -(void)updatePlayerButtonStatus {
+    
   switch (self.audioPlayerState) {
     case kAudioPlayerNoFile:
       [self.playButton setEnabled:NO];
@@ -316,7 +320,9 @@
 - (void) updateCurrentTime:(NSString *)currentTime andFloat:(float)value
 {
     [self.currentTimeTextField setStringValue:currentTime];
-    [self.seekSlider setFloatValue:value];
+    if (![self.seekSlider.cell isHighlighted]) {
+        self.playTime = value;
+    }
 }
 
 - (NSString *) docsPath

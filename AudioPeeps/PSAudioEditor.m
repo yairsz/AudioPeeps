@@ -16,7 +16,6 @@
 }
 
 @property (strong, nonatomic) AVURLAsset * asset;
-@property (strong, nonatomic) AVPlayer * player;
 @property (strong, nonatomic) AVMutableAudioMix *audioMix;
 @property (strong, nonatomic) AVPlayerItem *playerItem;
 @property (strong, nonatomic) AVMutableAudioMixInputParameters *mixInputParameter1;
@@ -109,6 +108,12 @@
   return _mixInputParameter1;
 }
 
+
+- (void) setPlayhead:(CGFloat)playhead
+{
+    _playhead = playhead;
+    [self seekToTime:playhead];
+}
 
 #pragma mark - Transport Methods
 
