@@ -19,6 +19,7 @@
 @property (strong, nonatomic) AVPlayer * player;
 @property (strong, nonatomic) AVMutableAudioMix *audioMix;
 @property (strong, nonatomic) AVPlayerItem *playerItem;
+@property (nonatomic) MTAudioProcessingTapRef tap1;
 @property (strong, nonatomic) AVMutableAudioMixInputParameters *mixInputParameter1;
 @property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
 @property (nonatomic) CMTime duration;
@@ -105,6 +106,7 @@
     // only called after 
   if (!_mixInputParameter1) {
     _mixInputParameter1 = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:[[self.composition tracks] lastObject]];
+    self.tap1 = self.mixInputParameter1.audioTapProcessor;
   }
   return _mixInputParameter1;
 }
