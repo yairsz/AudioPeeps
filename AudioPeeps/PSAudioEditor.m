@@ -67,7 +67,7 @@
 }
 
 -(void)setImmutableComposition:(AVComposition *)immutableComposition {
-  if (!_immutableComposition) {
+  if (!_immutableComposition || !immutableComposition) {
     _immutableComposition = immutableComposition;
   } else if (_immutableComposition != immutableComposition) {
       [self.undoManager registerUndoWithTarget:self selector:@selector(setImmutableComposition:) object:_immutableComposition];
@@ -144,7 +144,7 @@
 
 
 -(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion {
-  CMTime fullVolumeTime = CMTimeMake(self.composition.duration.value * 0.1f, self.composition.duration.timescale);
+  CMTime fullVolumeTime = CMTimeMake(self.composition.duration.value * 0.07f, self.composition.duration.timescale);
   if (self.mixInputParameter1On) { // it's on, turn off
     [self.mixInputParameter1 setVolumeRampFromStartVolume:1.f toEndVolume:1.f timeRange:CMTimeRangeMake(kCMTimeZero, fullVolumeTime)];
     [self updatePlayerItem];
@@ -163,7 +163,9 @@
 - (void) loadFile: (NSURL *) fileURL completion:(void (^)(BOOL))completion
 {
     self.composition = nil;
-    
+    self.immutableComposition = nil;
+    [self.undoManager removeAllActions];
+  
     NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
     
     self.asset = [[AVURLAsset alloc] initWithURL:fileURL options:options];
@@ -195,12 +197,12 @@
 {
     AVMutableCompositionTrack * compositionTrack = [[self.composition tracks] lastObject];
   
-  self.immutableComposition = [self.composition copy];
-  
     CMTime inTime = CMTimeMake(self.composition.duration.value * punchIn, self.composition.duration.timescale);
     CMTime outTime = CMTimeMake(self.composition.duration.value * punchOut, self.composition.duration.timescale);
     
     [compositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
+  
+    self.immutableComposition = [self.composition copy];
   
     [self updateObservers];
 }
