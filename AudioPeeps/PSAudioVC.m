@@ -29,6 +29,8 @@
 @property (strong, nonatomic) NSMenuItem *undoItem;
 
 @property (weak) IBOutlet NSButton *mixInput1;
+@property (weak) IBOutlet NSButton *mixInput2;
+
 
 @property (weak,nonatomic) IBOutlet NSPopUpButton * formatsPopUp;
 @property (weak,nonatomic) IBOutlet NSTextField * durationTextField;
@@ -83,6 +85,7 @@
     
     self.audioPlayerState = kAudioPlayerNoFile;
     [self updatePlayerButtonStatus];
+  [self updateMixInputButtons];
     [self updateUndoAndRedoStatus];
     
 }
@@ -108,6 +111,7 @@
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
       [self.mixInput1 setEnabled:NO];
+      [self.mixInput2 setEnabled:NO];
       break;
     case kAudioPlayerStopped:
       [self.playButton setEnabled:YES];
@@ -116,6 +120,7 @@
       [self.deleteSelectionButton setEnabled:YES];
       [self.exportButton setEnabled:YES];
       [self.mixInput1 setEnabled:YES];
+      [self.mixInput2 setEnabled:YES];
       break;
     case kAudioPlayerPlaying:
       [self.playButton setEnabled:YES];
@@ -124,6 +129,7 @@
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
       [self.mixInput1 setEnabled:YES];
+      [self.mixInput2 setEnabled:YES];
       break;
     case kAudioPlayerPaused:
       [self.playButton setEnabled:YES];
@@ -132,6 +138,7 @@
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:YES];
       [self.mixInput1 setEnabled:YES];
+      [self.mixInput2 setEnabled:YES];
       break;
   }
 }
@@ -141,6 +148,11 @@
     [self.mixInput1 setTitle:@"MixIn1 on"];
   } else {
     [self.mixInput1 setTitle:@"MixIn1 off"];
+  }
+  if (self.audioEditor.mixInputParameter2On) {
+    [self.mixInput2 setTitle:@"MixIn2 on"];
+  } else {
+    [self.mixInput2 setTitle:@"MixIn2 off"];
   }
 }
 
@@ -228,8 +240,16 @@
   [self updatePlayerButtonStatus];
 }
 
-- (IBAction)mixInput1Pressed:(id)sender {
-  [self.audioEditor toggleMixInputParameter1WithCompletion:^(BOOL success) {
+- (IBAction)mixInputButtonPressed:(id)sender {
+  MixInputNumber inputNumber;
+  if ([[sender identifier] isEqualToString:@"mixInput1"]) {
+    inputNumber = kMixInput1;
+  } else if ([[sender identifier] isEqualToString:@"mixInput2"]) {
+    inputNumber = kMixInput2;
+  } else {
+    inputNumber = kMixInput3;
+  }
+  [self.audioEditor toggleMixInput:inputNumber WithCompletion:^(BOOL success) {
     [self updateMixInputButtons];
   }];
 }

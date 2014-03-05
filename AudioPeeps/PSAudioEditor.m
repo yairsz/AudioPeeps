@@ -34,6 +34,7 @@
 - (PSAudioEditor *) init {
   if (self = [super init]) {
     self.mixInputParameter1On = NO;
+    self.mixInputParameter2On = NO;
   }
   return self;
 }
@@ -132,14 +133,31 @@
 
 
 
--(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion {
-  if (self.mixInputParameter1On) { // it's on, turn off
-    self.mixInputParameter1On = NO;
-    self.tapProcessor.enableMixInput1Filter = NO;
-  } else { // it's off, turn on
-    self.mixInputParameter1On = YES;
-    self.tapProcessor.enableMixInput1Filter = YES;
+-(void)toggleMixInput:(MixInputNumber)inputNumber WithCompletion:(void (^)(BOOL))completion {
+  switch (inputNumber) {
+    case kMixInput1:
+      if (self.mixInputParameter1On) { // it's on, turn off
+        self.mixInputParameter1On = NO;
+        self.tapProcessor.enableMixInput1Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter1On = YES;
+        self.tapProcessor.enableMixInput1Filter = YES;
+      }
+      break;
+    case kMixInput2:
+      if (self.mixInputParameter2On) { // it's on, turn off
+        self.mixInputParameter2On = NO;
+        self.tapProcessor.enableMixInput1Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter2On = YES;
+        self.tapProcessor.enableMixInput1Filter = YES;
+      }
+      break;
+    default:
+      break;
   }
+  
+  [self.tapProcessor flushAudioMix];
   [self updatePlayerItem];
   completion(YES);
 }

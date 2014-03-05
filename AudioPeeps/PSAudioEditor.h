@@ -23,6 +23,7 @@
 @property (strong, nonatomic) NSUndoManager *undoManager;
 @property (unsafe_unretained) id <PSAudioEditorDelegate> delegate;
 @property BOOL mixInputParameter1On;
+@property BOOL mixInputParameter2On;
 
 @property (strong, nonatomic) AVPlayer * player;
 @property (nonatomic) CGFloat playhead;
@@ -42,7 +43,7 @@
 - (void) loadIntro: (NSURL *) introURL completion:(void(^)(BOOL success))completion;
 - (void) loadOutro: (NSURL *) outroURL completion:(void(^)(BOOL success))completion;
 
--(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion;
+-(void)toggleMixInput:(MixInputNumber)inputNumber WithCompletion:(void (^)(BOOL success))completion;
 
 
   // undo and redo

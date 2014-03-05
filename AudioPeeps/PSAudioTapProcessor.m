@@ -53,6 +53,10 @@ static OSStatus AU_RenderCallback(void *inRefCon, AudioUnitRenderActionFlags *io
 
 #pragma mark - Properties
 
+-(void)flushAudioMix {
+  _audioMix = nil;
+}
+
 -(AVMutableAudioMix *)audioMix {
 	if (!_audioMix) {
 		AVMutableAudioMix *audioMix = [AVMutableAudioMix new];
