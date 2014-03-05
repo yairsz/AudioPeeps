@@ -29,6 +29,10 @@
 @property (strong, nonatomic) NSMenuItem *undoItem;
 
 @property (weak) IBOutlet NSButton *mixInput1;
+@property (weak) IBOutlet NSButton *mixInput2;
+@property (weak) IBOutlet NSButton *mixInput3;
+@property (weak) IBOutlet NSButton *mixInput4;
+@property (weak) IBOutlet NSButton *mixInput5;
 
 @property (weak,nonatomic) IBOutlet NSPopUpButton * formatsPopUp;
 @property (weak,nonatomic) IBOutlet NSTextField * durationTextField;
@@ -80,6 +84,7 @@
     
     self.audioPlayerState = kAudioPlayerNoFile;
     [self updatePlayerButtonStatus];
+  [self updateMixInputButtons];
     [self updateUndoAndRedoStatus];
     
 }
@@ -93,7 +98,21 @@
     return _audioEditor;
 }
 
-
+-(void)mixButtonsEnabled:(BOOL)enabler {
+  if (enabler == YES) {
+    [self.mixInput1 setEnabled:YES];
+    [self.mixInput2 setEnabled:YES];
+    [self.mixInput3 setEnabled:YES];
+    [self.mixInput4 setEnabled:YES];
+    [self.mixInput5 setEnabled:YES];
+  } else {
+    [self.mixInput1 setEnabled:NO];
+    [self.mixInput2 setEnabled:NO];
+    [self.mixInput3 setEnabled:NO];
+    [self.mixInput4 setEnabled:NO];
+    [self.mixInput5 setEnabled:NO];
+  }
+}
 
 -(void)updatePlayerButtonStatus {
     
@@ -104,7 +123,7 @@
       [self.stopButton setEnabled:NO];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
-      [self.mixInput1 setEnabled:NO];
+      [self mixButtonsEnabled:NO];
       break;
     case kAudioPlayerStopped:
       [self.playButton setEnabled:YES];
@@ -112,7 +131,7 @@
       [self.stopButton setEnabled:NO];
       [self.deleteSelectionButton setEnabled:YES];
       [self.exportButton setEnabled:YES];
-      [self.mixInput1 setEnabled:YES];
+      [self mixButtonsEnabled:YES];
       break;
     case kAudioPlayerPlaying:
       [self.playButton setEnabled:YES];
@@ -120,7 +139,7 @@
       [self.stopButton setEnabled:YES];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
-      [self.mixInput1 setEnabled:YES];
+      [self mixButtonsEnabled:YES];
       break;
     case kAudioPlayerPaused:
       [self.playButton setEnabled:YES];
@@ -128,16 +147,36 @@
       [self.stopButton setEnabled:YES];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:YES];
-      [self.mixInput1 setEnabled:YES];
+      [self mixButtonsEnabled:YES];
       break;
   }
 }
 
 -(void)updateMixInputButtons {
   if (self.audioEditor.mixInputParameter1On) {
-    [self.mixInput1 setTitle:@"MixIn1 on"];
+    [self.mixInput1 setTitle:@"1 on"];
   } else {
-    [self.mixInput1 setTitle:@"MixIn1 off"];
+    [self.mixInput1 setTitle:@"1 off"];
+  }
+  if (self.audioEditor.mixInputParameter2On) {
+    [self.mixInput2 setTitle:@"2 on"];
+  } else {
+    [self.mixInput2 setTitle:@"2 off"];
+  }
+  if (self.audioEditor.mixInputParameter3On) {
+    [self.mixInput3 setTitle:@"3 on"];
+  } else {
+    [self.mixInput3 setTitle:@"3 off"];
+  }
+  if (self.audioEditor.mixInputParameter4On) {
+    [self.mixInput4 setTitle:@"4 on"];
+  } else {
+    [self.mixInput4 setTitle:@"4 off"];
+  }
+  if (self.audioEditor.mixInputParameter5On) {
+    [self.mixInput5 setTitle:@"5 on"];
+  } else {
+    [self.mixInput5 setTitle:@"5 off"];
   }
 }
 
@@ -225,8 +264,22 @@
   [self updatePlayerButtonStatus];
 }
 
-- (IBAction)mixInput1Pressed:(id)sender {
-  [self.audioEditor toggleMixInputParameter1WithCompletion:^(BOOL success) {
+- (IBAction)mixInputButtonPressed:(id)sender {
+  MixInputNumber inputNumber;
+  if ([[sender identifier] isEqualToString:@"mixInput1"]) {
+    inputNumber = kMixInput1;
+  } else if ([[sender identifier] isEqualToString:@"mixInput2"]) {
+    inputNumber = kMixInput2;
+  } else if ([[sender identifier] isEqualToString:@"mixInput3"]) {
+    inputNumber = kMixInput3;
+  } else if ([[sender identifier] isEqualToString:@"mixInput4"]) {
+    inputNumber = kMixInput4;
+  } else if ([[sender identifier] isEqualToString:@"mixInput5"]) {
+    inputNumber = kMixInput5;
+  } else {
+    return;
+  }
+  [self.audioEditor toggleMixInput:inputNumber WithCompletion:^(BOOL success) {
     [self updateMixInputButtons];
   }];
 }
@@ -346,8 +399,6 @@
     NSString * path = dirPaths[0];
     return [path stringByAppendingPathComponent:@"AudioPeeps"];
 }
-
-
 
 - (BOOL) allowDragglableFile:(id<NSDraggingInfo>)sender {
     

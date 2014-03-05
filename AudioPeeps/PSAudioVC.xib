@@ -14,6 +14,10 @@
                 <outlet property="formatsPopUp" destination="KwC-fD-X9W" id="q5M-E7-cMV"/>
                 <outlet property="introWell" destination="8tB-PU-Loa" id="oJ7-Zg-Hff"/>
                 <outlet property="mixInput1" destination="FZn-4P-mdD" id="Iwx-rg-A4O"/>
+                <outlet property="mixInput2" destination="t6K-mV-ceS" id="jWA-AP-DZf"/>
+                <outlet property="mixInput3" destination="Xcf-fC-NE5" id="lFt-Tg-bNT"/>
+                <outlet property="mixInput4" destination="LOr-pl-KBQ" id="fso-JY-jzN"/>
+                <outlet property="mixInput5" destination="J3b-HX-52D" id="Q5U-UX-q7V"/>
                 <outlet property="outroWell" destination="u5h-Yb-qRQ" id="EhG-HC-EPL"/>
                 <outlet property="playButton" destination="h01-eZ-2y1" id="jIm-aa-3bK"/>
                 <outlet property="punchInSlider" destination="H8v-HV-Sgx" id="tSz-gQ-DDQ"/>
@@ -102,7 +106,7 @@
                     </connections>
                 </popUpButton>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H8v-HV-Sgx">
-                    <rect key="frame" x="18" y="74" width="444" height="25"/>
+                    <rect key="frame" x="18" y="74" width="444" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="iVT-Vl-qal"/>
                     <connections>
@@ -111,7 +115,7 @@
                     </connections>
                 </slider>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lb5-Ho-9BI">
-                    <rect key="frame" x="18" y="18" width="444" height="25"/>
+                    <rect key="frame" x="18" y="18" width="444" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" doubleValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="lNX-sj-gjO"/>
                     <connections>
@@ -156,7 +160,7 @@
                     </textFieldCell>
                 </textField>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aLU-XI-sBV">
-                    <rect key="frame" x="18" y="130" width="444" height="25"/>
+                    <rect key="frame" x="18" y="130" width="444" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="TU5-r5-9UN"/>
                     <connections>
@@ -205,15 +209,59 @@
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <imageCell key="cell" selectable="YES" editable="YES" alignment="left" image="plus" id="a0d-PI-kXr"/>
                 </imageView>
-                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FZn-4P-mdD">
-                    <rect key="frame" x="162" y="215" width="105" height="32"/>
+                <button identifier="mixInput1" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FZn-4P-mdD">
+                    <rect key="frame" x="142" y="215" width="55" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="mixIn1 off" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xrx-EU-IDf">
+                    <buttonCell key="cell" type="push" title="1 off" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xrx-EU-IDf">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
+                        <font key="font" metaFont="smallSystem"/>
                     </buttonCell>
                     <connections>
-                        <action selector="mixInput1Pressed:" target="-2" id="56U-Tf-QqV"/>
+                        <action selector="mixInputButtonPressed:" target="-2" id="weA-pv-gUH"/>
+                    </connections>
+                </button>
+                <button identifier="mixInput2" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="t6K-mV-ceS">
+                    <rect key="frame" x="189" y="215" width="55" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="2 off" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="I2z-2g-dhb">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="mixInputButtonPressed:" target="-2" id="Vnq-Ao-iqc"/>
+                    </connections>
+                </button>
+                <button identifier="mixInput4" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LOr-pl-KBQ">
+                    <rect key="frame" x="278" y="215" width="56" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="4 off" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oxy-ue-KNi">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="mixInputButtonPressed:" target="-2" id="izM-jn-R2S"/>
+                    </connections>
+                </button>
+                <button identifier="mixInput5" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="J3b-HX-52D">
+                    <rect key="frame" x="327" y="215" width="58" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="5 off" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="16c-6f-5b3">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="mixInputButtonPressed:" target="-2" id="aDj-Wz-nBs"/>
+                    </connections>
+                </button>
+                <button identifier="mixInput3" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xcf-fC-NE5">
+                    <rect key="frame" x="231" y="215" width="56" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="3 off" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="19t-k6-3vc">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="mixInputButtonPressed:" target="-2" id="oN7-8E-KtZ"/>
                     </connections>
                 </button>
             </subviews>

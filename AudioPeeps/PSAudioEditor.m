@@ -7,18 +7,18 @@
 //
 
 #import "PSAudioEditor.h"
+#import "PSAudioTapProcessor.h"
 #import "Constants.h"
 
-@interface PSAudioEditor()
+@interface PSAudioEditor() <PSAudioEditorDelegate>
 {
     NSURL * soundFileURL;
     
 }
 
 @property (strong, nonatomic) AVURLAsset * asset;
-@property (strong, nonatomic) AVMutableAudioMix *audioMix;
 @property (strong, nonatomic) AVPlayerItem *playerItem;
-@property (strong, nonatomic) AVMutableAudioMixInputParameters *mixInputParameter1;
+@property (strong, nonatomic) PSAudioTapProcessor *tapProcessor;
 @property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
 @property (nonatomic) CMTime duration;
 @property (strong, nonatomic) AVComposition *immutableComposition;
@@ -36,6 +36,10 @@
 - (PSAudioEditor *) init {
   if (self = [super init]) {
     self.mixInputParameter1On = NO;
+    self.mixInputParameter2On = NO;
+    self.mixInputParameter3On = NO;
+    self.mixInputParameter4On = NO;
+    self.mixInputParameter5On = NO;
   }
   return self;
 }
@@ -95,22 +99,6 @@
     return _player;
 }
 
--(AVMutableAudioMix *)audioMix {
-  if (!_audioMix) {
-    _audioMix = [AVMutableAudioMix new];
-  }
-  return _audioMix;
-}
-
--(AVMutableAudioMixInputParameters *)mixInputParameter1 {
-    // only called after 
-  if (!_mixInputParameter1) {
-    _mixInputParameter1 = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:[[self.composition tracks] lastObject]];
-  }
-  return _mixInputParameter1;
-}
-
-
 - (void) setPlayhead:(CGFloat)playhead
 {
     _playhead = playhead;
@@ -150,17 +138,59 @@
 
 
 
--(void)toggleMixInputParameter1WithCompletion:(void (^)(BOOL success))completion {
-  CMTime fullVolumeTime = CMTimeMake(self.composition.duration.value * 0.07f, self.composition.duration.timescale);
-  if (self.mixInputParameter1On) { // it's on, turn off
-    [self.mixInputParameter1 setVolumeRampFromStartVolume:1.f toEndVolume:1.f timeRange:CMTimeRangeMake(kCMTimeZero, fullVolumeTime)];
-    [self updatePlayerItem];
-    self.mixInputParameter1On = NO;
-  } else { // it's off, turn on
-    [self.mixInputParameter1 setVolumeRampFromStartVolume:0.f toEndVolume:1.f timeRange:CMTimeRangeMake(kCMTimeZero, fullVolumeTime)];
-    [self updatePlayerItem];
-    self.mixInputParameter1On = YES;
+-(void)toggleMixInput:(MixInputNumber)inputNumber WithCompletion:(void (^)(BOOL))completion {
+  switch (inputNumber) {
+    case kMixInput1:
+      if (self.mixInputParameter1On) { // it's on, turn off
+        self.mixInputParameter1On = NO;
+        self.tapProcessor.enableMixInput1Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter1On = YES;
+        self.tapProcessor.enableMixInput1Filter = YES;
+      }
+      break;
+    case kMixInput2:
+      if (self.mixInputParameter2On) { // it's on, turn off
+        self.mixInputParameter2On = NO;
+        self.tapProcessor.enableMixInput2Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter2On = YES;
+        self.tapProcessor.enableMixInput2Filter = YES;
+      }
+      break;
+    case kMixInput3:
+      if (self.mixInputParameter3On) { // it's on, turn off
+        self.mixInputParameter3On = NO;
+        self.tapProcessor.enableMixInput3Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter3On = YES;
+        self.tapProcessor.enableMixInput3Filter = YES;
+      }
+      break;
+    case kMixInput4:
+      if (self.mixInputParameter4On) { // it's on, turn off
+        self.mixInputParameter4On = NO;
+        self.tapProcessor.enableMixInput4Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter4On = YES;
+        self.tapProcessor.enableMixInput4Filter = YES;
+      }
+      break;
+    case kMixInput5:
+      if (self.mixInputParameter5On) { // it's on, turn off
+        self.mixInputParameter5On = NO;
+        self.tapProcessor.enableMixInput5Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter5On = YES;
+        self.tapProcessor.enableMixInput5Filter = YES;
+      }
+      break;
+      
+    default:
+      break;
   }
+  [self.tapProcessor flushAudioMix];
+  [self updatePlayerItem];
   completion(YES);
 }
 
@@ -186,7 +216,8 @@
                                        ofTrack:self.originalAssetTrack
                                         atTime:kCMTimeZero error:nil];
   
-    self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
+  self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:compositionTrack];
+  self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
   
     [self updatePlayerItem];
   
@@ -210,9 +241,8 @@
 
 
 -(void)updatePlayerItem {
-  [self.playerItem setAudioMix:self.audioMix];
+  [self.playerItem setAudioMix:self.tapProcessor.audioMix];
   [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
-  [self.audioMix setInputParameters:@[self.mixInputParameter1]];
 }
 
 

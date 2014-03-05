@@ -72,3 +72,11 @@ typedef enum audioPlayerStates {
   kAudioPlayerPlaying,
   kAudioPlayerPaused
 } AudioPlayerState;
+
+typedef enum mixInputNumbers {
+  kMixInput1,
+  kMixInput2,
+  kMixInput3,
+  kMixInput4,
+  kMixInput5
+} MixInputNumber;

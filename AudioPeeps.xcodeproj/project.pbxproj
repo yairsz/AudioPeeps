@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		3F439CF318C4114C00B80D5A /* Stravinsky.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 3F439CF218C4114C00B80D5A /* Stravinsky.m4a */; };
+		3FC6608F18C66C6100DAC840 /* PSAudioTapProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC6608E18C66C6100DAC840 /* PSAudioTapProcessor.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		3FC6609118C6728000DAC840 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FC6609018C6728000DAC840 /* AudioToolbox.framework */; };
+		3FC6609D18C676D100DAC840 /* MediaToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FC6609C18C676D100DAC840 /* MediaToolbox.framework */; };
+		3FC6609E18C676ED00DAC840 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FC6609818C6760500DAC840 /* AudioUnit.framework */; };
 		B00AF44618BAB8C500ADD426 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00AF44518BAB8C500ADD426 /* Cocoa.framework */; };
 		B00AF45018BAB8C500ADD426 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B00AF44E18BAB8C500ADD426 /* InfoPlist.strings */; };
 		B00AF45218BAB8C500ADD426 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF45118BAB8C500ADD426 /* main.m */; };
@@ -40,6 +44,13 @@
 
 /* Begin PBXFileReference section */
 		3F439CF218C4114C00B80D5A /* Stravinsky.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Stravinsky.m4a; sourceTree = "<group>"; };
+		3FC6608D18C66C6100DAC840 /* PSAudioTapProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSAudioTapProcessor.h; sourceTree = "<group>"; };
+		3FC6608E18C66C6100DAC840 /* PSAudioTapProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSAudioTapProcessor.m; sourceTree = "<group>"; };
+		3FC6609018C6728000DAC840 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		3FC6609618C675DB00DAC840 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		3FC6609818C6760500DAC840 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
+		3FC6609A18C6763000DAC840 /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = System/Library/Frameworks/CoreAudioKit.framework; sourceTree = SDKROOT; };
+		3FC6609C18C676D100DAC840 /* MediaToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaToolbox.framework; path = System/Library/Frameworks/MediaToolbox.framework; sourceTree = SDKROOT; };
 		B00AF44218BAB8C500ADD426 /* AudioPeeps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AudioPeeps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00AF44518BAB8C500ADD426 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		B00AF44818BAB8C500ADD426 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -78,6 +89,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FC6609E18C676ED00DAC840 /* AudioUnit.framework in Frameworks */,
+				3FC6609D18C676D100DAC840 /* MediaToolbox.framework in Frameworks */,
+				3FC6609118C6728000DAC840 /* AudioToolbox.framework in Frameworks */,
 				B00AF49818BAEE6C00ADD426 /* CoreMedia.framework in Frameworks */,
 				B00AF47D18BABA4C00ADD426 /* AVFoundation.framework in Frameworks */,
 				B00AF44618BAB8C500ADD426 /* Cocoa.framework in Frameworks */,
@@ -118,6 +132,11 @@
 		B00AF44418BAB8C500ADD426 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3FC6609C18C676D100DAC840 /* MediaToolbox.framework */,
+				3FC6609A18C6763000DAC840 /* CoreAudioKit.framework */,
+				3FC6609818C6760500DAC840 /* AudioUnit.framework */,
+				3FC6609618C675DB00DAC840 /* CoreAudio.framework */,
+				3FC6609018C6728000DAC840 /* AudioToolbox.framework */,
 				B00AF49718BAEE6C00ADD426 /* CoreMedia.framework */,
 				B00AF47C18BABA4C00ADD426 /* AVFoundation.framework */,
 				B00AF44518BAB8C500ADD426 /* Cocoa.framework */,
@@ -152,6 +171,8 @@
 				B00AF47A18BAB90000ADD426 /* PSAudioEditor.m */,
 				B0CC6D7218C2B6BD009ED340 /* PSAudioExporter.h */,
 				B0CC6D7318C2B6BD009ED340 /* PSAudioExporter.m */,
+				3FC6608D18C66C6100DAC840 /* PSAudioTapProcessor.h */,
+				3FC6608E18C66C6100DAC840 /* PSAudioTapProcessor.m */,
 				B00AF45718BAB8C500ADD426 /* YSAppDelegate.h */,
 				B00AF45818BAB8C500ADD426 /* YSAppDelegate.m */,
 				B00AF45D18BAB8C500ADD426 /* Images.xcassets */,
@@ -293,6 +314,7 @@
 			files = (
 				B00AF45918BAB8C500ADD426 /* YSAppDelegate.m in Sources */,
 				B08B7C6318C54A270073E02B /* SSDragAudioImageView.m in Sources */,
+				3FC6608F18C66C6100DAC840 /* PSAudioTapProcessor.m in Sources */,
 				B00AF47B18BAB90000ADD426 /* PSAudioEditor.m in Sources */,
 				B00AF49518BACF8800ADD426 /* PSAudioVC.m in Sources */,
 				B00AF45218BAB8C500ADD426 /* main.m in Sources */,
@@ -427,6 +449,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/bennettslin/iosProjects/myAssignments/AudioPeeps,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "AudioPeeps/AudioPeeps-Prefix.pch";
 				INFOPLIST_FILE = "AudioPeeps/AudioPeeps-Info.plist";
@@ -440,6 +466,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/bennettslin/iosProjects/myAssignments/AudioPeeps,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "AudioPeeps/AudioPeeps-Prefix.pch";
 				INFOPLIST_FILE = "AudioPeeps/AudioPeeps-Info.plist";
