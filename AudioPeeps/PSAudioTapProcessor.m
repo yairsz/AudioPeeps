@@ -135,7 +135,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 	AudioUnit audioUnit1;
 	AudioComponentDescription audioComponentDescription1;
 	audioComponentDescription1.componentType = kAudioUnitType_Effect;
-	audioComponentDescription1.componentSubType = kAudioUnitSubType_MatrixReverb;
+	audioComponentDescription1.componentSubType = kAudioUnitSubType_PeakLimiter;
   audioComponentDescription1.componentManufacturer = kAudioUnitManufacturer_Apple;
 	audioComponentDescription1.componentFlags = 0;
 	audioComponentDescription1.componentFlagsMask = 0;
@@ -176,7 +176,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 	AudioUnit audioUnit2;
 	AudioComponentDescription audioComponentDescription2;
 	audioComponentDescription2.componentType = kAudioUnitType_Effect;
-	audioComponentDescription2.componentSubType = kAudioUnitSubType_Distortion;
+	audioComponentDescription2.componentSubType = kAudioUnitSubType_NBandEQ;
 	audioComponentDescription2.componentManufacturer = kAudioUnitManufacturer_Apple;
 	audioComponentDescription2.componentFlags = 0;
 	audioComponentDescription2.componentFlagsMask = 0;
@@ -217,7 +217,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 	AudioUnit audioUnit3;
 	AudioComponentDescription audioComponentDescription3;
 	audioComponentDescription3.componentType = kAudioUnitType_Effect;
-	audioComponentDescription3.componentSubType = kAudioUnitSubType_Delay;
+	audioComponentDescription3.componentSubType = kAudioUnitSubType_NBandEQ;
 	audioComponentDescription3.componentManufacturer = kAudioUnitManufacturer_Apple;
 	audioComponentDescription3.componentFlags = 0;
 	audioComponentDescription3.componentFlagsMask = 0;
@@ -258,7 +258,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
   AudioUnit audioUnit4;
 	AudioComponentDescription audioComponentDescription4;
 	audioComponentDescription4.componentType = kAudioUnitType_Effect;
-	audioComponentDescription4.componentSubType = kAudioUnitSubType_BandPassFilter;
+	audioComponentDescription4.componentSubType = kAudioUnitSubType_NBandEQ;
   audioComponentDescription4.componentManufacturer = kAudioUnitManufacturer_Apple;
 	audioComponentDescription4.componentFlags = 0;
 	audioComponentDescription4.componentFlagsMask = 0;
@@ -299,7 +299,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 	AudioUnit audioUnit5;
 	AudioComponentDescription audioComponentDescription5;
 	audioComponentDescription5.componentType = kAudioUnitType_Effect;
-	audioComponentDescription5.componentSubType = kAudioUnitSubType_ParametricEQ;
+	audioComponentDescription5.componentSubType = kAudioUnitSubType_NBandEQ;
   audioComponentDescription5.componentManufacturer = kAudioUnitManufacturer_Apple;
 	audioComponentDescription5.componentFlags = 0;
 	audioComponentDescription5.componentFlagsMask = 0;
@@ -328,9 +328,8 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 			}
       
         // Set audio unit preset
-      if (noErr == status ) {
-        NSLog(@"preset5 being called");
-        NSURL *presetURL5 = [NSURL URLWithString:@"file:///Users/bennettslin/Documents/AudioPeeps/extreme.aupreset"];
+      if (noErr == status) {
+        NSURL *presetURL5 = [NSURL URLWithString:@"file:///Users/bennettslin/Documents/AudioPeeps/myPreset5.aupreset"];
         CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit5, presetURL5);
         
         status = AudioUnitSetProperty(audioUnit5,
@@ -341,7 +340,6 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
                              sizeof(CFPropertyListRef));
         
         CFRelease(propertyList);
-        NSLog(@"preset loaded");
       }
       
         // Initialize audio unit.
@@ -386,6 +384,7 @@ static void tap_UnprepareCallback(MTAudioProcessingTapRef tap) {
 	}
   
 }
+
 static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberFrames, MTAudioProcessingTapFlags flags, AudioBufferList *bufferListInOut, CMItemCount *numberFramesOut, MTAudioProcessingTapFlags *flagsOut) {
 	AVAudioTapProcessorContext *context = (AVAudioTapProcessorContext *)MTAudioProcessingTapGetStorage(tap);
 	
