@@ -106,7 +106,7 @@
                     </connections>
                 </popUpButton>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H8v-HV-Sgx">
-                    <rect key="frame" x="18" y="74" width="444" height="26"/>
+                    <rect key="frame" x="18" y="74" width="444" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="iVT-Vl-qal"/>
                     <connections>
@@ -115,7 +115,7 @@
                     </connections>
                 </slider>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lb5-Ho-9BI">
-                    <rect key="frame" x="18" y="18" width="444" height="26"/>
+                    <rect key="frame" x="18" y="18" width="444" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" doubleValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="lNX-sj-gjO"/>
                     <connections>
@@ -160,7 +160,7 @@
                     </textFieldCell>
                 </textField>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aLU-XI-sBV">
-                    <rect key="frame" x="18" y="130" width="444" height="26"/>
+                    <rect key="frame" x="18" y="130" width="444" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="TU5-r5-9UN"/>
                     <connections>

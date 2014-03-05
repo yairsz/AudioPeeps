@@ -25,6 +25,7 @@
 @property (strong, nonatomic) id observer;
 @property (strong, nonatomic) AVAssetTrack * originalAssetTrack;
 @property (strong, nonatomic) AVMutableCompositionTrack * mainCompositionTrack;
+@property (strong, nonatomic) AVMutableCompositionTrack * troCompositionTrack;
 
 
 @end
@@ -97,6 +98,15 @@
                                          }];
     }
     return _player;
+}
+
+- (AVMutableCompositionTrack *) troCompositionTrack
+{
+    if (!_troCompositionTrack) {
+        _troCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+        
+    }
+    return _troCompositionTrack;
 }
 
 - (void) setPlayhead:(CGFloat)playhead
@@ -231,12 +241,45 @@
 - (void) loadIntro:(NSURL *)introURL completion:(void(^)(BOOL success))completion
 {
     
+    NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
+    
+    AVAsset * introAsset = [[AVURLAsset alloc] initWithURL:introURL options:options];
+    
+    AVAssetTrack * introAssetTrack = [[introAsset tracksWithMediaType:AVMediaTypeAudio] lastObject];
+    
+    [self.mainCompositionTrack insertEmptyTimeRange:CMTimeRangeMake(kCMTimeZero,
+                                                                    introAssetTrack.timeRange.duration)];
+
+    [self.troCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero,
+                                                               introAssetTrack.timeRange.duration)
+                                       ofTrack:introAssetTrack
+                                        atTime:kCMTimeZero error:nil];
+    [self updatePlayerItem];
+    self.immutableComposition = [self.composition copy];
+    [self updateObservers];
 }
 
-- (void) loadOutro:(NSURL *)outro completion:(void(^)(BOOL success))completion
+- (void) loadOutro:(NSURL *)outroURL completion:(void(^)(BOOL success))completion
 {
+    NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
     
+    AVAsset * outroAsset = [[AVURLAsset alloc] initWithURL:outroURL options:options];
     
+    AVAssetTrack * outroAssetTrack = [[outroAsset tracksWithMediaType:AVMediaTypeAudio] lastObject];
+    
+    CMTime insertTime = self.composition.duration;
+    
+    [self.mainCompositionTrack insertEmptyTimeRange: CMTimeRangeMake(insertTime,
+                                                      outroAssetTrack.timeRange.duration)];
+    
+    [self.troCompositionTrack insertTimeRange:CMTimeRangeMake(insertTime,
+                                                              outroAssetTrack.timeRange.duration)
+                                      ofTrack:outroAssetTrack
+                                       atTime:kCMTimeZero error:nil];
+    
+    [self updatePlayerItem];
+    self.immutableComposition = [self.composition copy];
+    [self updateObservers];
 }
 
 
@@ -247,9 +290,11 @@
 
 
 - (NSString *) fileDuration{
-    CMTime duration = self.player.currentItem.asset.duration;
+    CMTime duration = self.composition.duration;
     return [self stringFromTime:duration];
 }
+
+
 
 
 #pragma mark - Edit Methods
@@ -342,12 +387,13 @@
 #pragma mark - undo methods
 
 -(void)undoLatestOperationWithCompletion:(void (^)(BOOL))completion {
-  [self.undoManager undo];
-  self.composition = [self.immutableComposition mutableCopy];
+    [self.undoManager undo];
+    self.composition = [self.immutableComposition mutableCopy];
     self.mainCompositionTrack = [[self.composition tracks] lastObject];
-  [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
-  [self updateObservers];
-  completion(YES);
+    
+    [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
+    [self updateObservers];
+    completion(YES);
 }
 
 -(void)redoLatestUndoWithCompletion:(void (^)(BOOL))completion {

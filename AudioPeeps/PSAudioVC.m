@@ -423,14 +423,19 @@
 
 - (BOOL) didDropFile:(id<NSDraggingInfo>)sender
 {
+    NSPasteboardItem *draggedItem = [[[sender draggingPasteboard] pasteboardItems] objectAtIndex:0];
+    NSString *type = [draggedItem types][0];
+    NSURL * fileURL = [NSURL URLWithString:[draggedItem stringForType:type]];
     
     NSPoint dragPoint =[sender draggingLocation];
     if (dragPoint.x < self.view.frame.size.width/2) {
-//        NSLog(@"%@",@"Intro");
-        
-        
+        [self.audioEditor loadIntro:fileURL completion:^(BOOL success) {
+            
+        }];
     } else {
-//        NSLog(@"%@",@"Outro");
+        [self.audioEditor loadOutro:fileURL completion:^(BOOL success) {
+            
+        }];
     }
     return YES;
     
