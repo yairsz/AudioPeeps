@@ -35,6 +35,9 @@
   if (self = [super init]) {
     self.mixInputParameter1On = NO;
     self.mixInputParameter2On = NO;
+    self.mixInputParameter3On = NO;
+    self.mixInputParameter4On = NO;
+    self.mixInputParameter5On = NO;
   }
   return self;
 }
@@ -153,10 +156,37 @@
         self.tapProcessor.enableMixInput2Filter = YES;
       }
       break;
+    case kMixInput3:
+      if (self.mixInputParameter3On) { // it's on, turn off
+        self.mixInputParameter3On = NO;
+        self.tapProcessor.enableMixInput3Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter3On = YES;
+        self.tapProcessor.enableMixInput3Filter = YES;
+      }
+      break;
+    case kMixInput4:
+      if (self.mixInputParameter4On) { // it's on, turn off
+        self.mixInputParameter4On = NO;
+        self.tapProcessor.enableMixInput4Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter4On = YES;
+        self.tapProcessor.enableMixInput4Filter = YES;
+      }
+      break;
+    case kMixInput5:
+      if (self.mixInputParameter5On) { // it's on, turn off
+        self.mixInputParameter5On = NO;
+        self.tapProcessor.enableMixInput5Filter = NO;
+      } else { // it's off, turn on
+        self.mixInputParameter5On = YES;
+        self.tapProcessor.enableMixInput5Filter = YES;
+      }
+      break;
+      
     default:
       break;
   }
-  NSLog(@"mix 1 on? %i, mix 2 on? %i", self.tapProcessor.isMixInput1Enabled, self.tapProcessor.isMixInput2Enabled);
   [self.tapProcessor flushAudioMix];
   [self updatePlayerItem];
   completion(YES);

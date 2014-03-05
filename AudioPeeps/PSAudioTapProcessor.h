@@ -20,6 +20,7 @@
 @property (nonatomic, getter = isMixInput2Enabled) BOOL enableMixInput2Filter;
 @property (nonatomic, getter = isMixInput3Enabled) BOOL enableMixInput3Filter;
 @property (nonatomic, getter = isMixInput4Enabled) BOOL enableMixInput4Filter;
+@property (nonatomic, getter = isMixInput5Enabled) BOOL enableMixInput5Filter;
 
 -(void)flushAudioMix;
 
