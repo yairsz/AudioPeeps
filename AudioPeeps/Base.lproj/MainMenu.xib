@@ -141,17 +141,22 @@
                             </menuItem>
                             <menuItem title="Cut" keyEquivalent="x" id="199">
                                 <connections>
-                                    <action selector="cut:" target="-1" id="228"/>
+                                    <action selector="cut:" target="494" id="eM1-9M-RJ5"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Copy" keyEquivalent="c" id="197">
                                 <connections>
-                                    <action selector="copy:" target="-1" id="224"/>
+                                    <action selector="copy:" target="494" id="iR1-nm-sjA"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Paste" keyEquivalent="v" id="203">
                                 <connections>
-                                    <action selector="paste:" target="-1" id="226"/>
+                                    <action selector="paste:" target="494" id="hwi-AO-uv5"/>
+                                    <binding destination="dLc-rL-I21" name="enabled" keyPath="self.copiedTimeRange" id="0ei-Bs-STL">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNotNil</string>
+                                        </dictionary>
+                                    </binding>
                                 </connections>
                             </menuItem>
                             <menuItem title="Paste and Match Style" keyEquivalent="V" id="485">
@@ -658,10 +663,22 @@
         </window>
         <customObject id="494" customClass="YSAppDelegate">
             <connections>
-                <outlet property="window" destination="371" id="532"/>
+                <outlet property="window" destination="lqB-tL-nnn" id="yIG-ia-XiE"/>
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>
         <customObject id="zA6-R3-qfW" customClass="PSAudioVC"/>
+        <userDefaultsController representsSharedInstance="YES" id="EFU-vO-wRc"/>
+        <customObject id="dLc-rL-I21" customClass="PSAudioEditor"/>
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="lqB-tL-nnn">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="163" y="199" width="491" height="448"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
+            <view key="contentView" id="yQr-sf-Gqn">
+                <rect key="frame" x="0.0" y="0.0" width="491" height="448"/>
+                <autoresizingMask key="autoresizingMask"/>
+            </view>
+        </window>
     </objects>
 </document>

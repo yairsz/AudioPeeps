@@ -48,8 +48,6 @@
 @property (strong,nonatomic) NSString * fileType;
 @property (strong,nonatomic) NSString * fileExtension;
 
-@property (nonatomic) float punchInValue;
-@property (nonatomic) float punchOutValue;
 
 @end
 
@@ -61,7 +59,6 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-      
     }
     return self;
 }
@@ -294,6 +291,24 @@
   [self.audioEditor deleteAudioFrom:self.punchInValue to:self.punchOutValue];
   [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
   [self updateUndoAndRedoStatus];
+}
+
+- (IBAction)cut:(id)sender
+{
+    [self.audioEditor cutAudioFrom:self.punchInValue to:self.punchOutValue];
+    [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+    [self updateUndoAndRedoStatus];
+}
+- (IBAction)copy:(id)sender
+{
+    [self.audioEditor copyAudioFrom:self.punchInValue to:self.punchOutValue];
+    [self updateUndoAndRedoStatus];
+}
+- (IBAction)paste:(id)sender
+{
+    [self.audioEditor pasteAudioAt:self.punchInValue];
+    [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+    [self updateUndoAndRedoStatus];
 }
 
 - (IBAction)export:(id)sender {

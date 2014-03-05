@@ -21,9 +21,11 @@
 @property (strong, nonatomic) PSAudioTapProcessor *tapProcessor;
 @property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
 @property (nonatomic) CMTime duration;
-
 @property (strong, nonatomic) AVComposition *immutableComposition;
 @property (strong, nonatomic) id observer;
+@property (strong, nonatomic) AVAssetTrack * originalAssetTrack;
+@property (strong, nonatomic) AVMutableCompositionTrack * mainCompositionTrack;
+
 
 @end
 
@@ -214,39 +216,14 @@
   self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:compositionTrack];
   self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
   
-  [self updatePlayerItem];
+    [self updatePlayerItem];
   
-  self.immutableComposition = [self.composition copy];
+    self.immutableComposition = [self.composition copy];
   
     [self updateObservers];
   
     completion(YES);
 }
-
--(void)updatePlayerItem {
-  [self.playerItem setAudioMix:self.tapProcessor.audioMix];
-  [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
-}
-
-- (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
-{
-    AVMutableCompositionTrack * compositionTrack = [[self.composition tracks] lastObject];
-  
-    CMTime inTime = CMTimeMake(self.composition.duration.value * punchIn, self.composition.duration.timescale);
-    CMTime outTime = CMTimeMake(self.composition.duration.value * punchOut, self.composition.duration.timescale);
-    
-    [compositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
-  
-    self.immutableComposition = [self.composition copy];
-  
-    [self updateObservers];
-}
-
-- (NSString *) fileDuration{
-    CMTime duration = self.player.currentItem.asset.duration;
-    return [self stringFromTime:duration];
-}
-
 
 - (void) loadIntro:(NSURL *)introURL completion:(void(^)(BOOL success))completion
 {
@@ -258,6 +235,65 @@
     
     
 }
+
+
+-(void)updatePlayerItem {
+  [self.playerItem setAudioMix:self.tapProcessor.audioMix];
+  [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
+}
+
+
+- (NSString *) fileDuration{
+    CMTime duration = self.player.currentItem.asset.duration;
+    return [self stringFromTime:duration];
+}
+
+
+#pragma mark - Edit Methods
+
+- (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
+{
+    CMTime inTime = [self timeFromFloat:punchIn];
+    CMTime outTime = [self timeFromFloat:punchOut];
+    
+    [self.mainCompositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
+  
+    self.immutableComposition = [self.composition copy];
+  
+    [self updateObservers];
+}
+
+
+- (void) cutAudioFrom:(float) punchIn to:(float) punchOut
+{
+    [self copyAudioFrom:punchIn to:punchIn];
+    [self deleteAudioFrom:punchIn to:punchOut];
+    
+}
+
+- (void) copyAudioFrom:(float) punchIn to:(float) punchOut
+{
+    self.copiedTimeRange = CMTimeRangeMake([self timeFromFloat:punchIn],
+                                           [self timeFromFloat:punchOut]);
+}
+
+- (void) pasteAudioAt: (float) time
+{
+//    if (self.copiedTimeRange.duration.value > 0.0) {
+    NSError * error;
+        [self.mainCompositionTrack insertTimeRange:self.copiedTimeRange
+                                           ofTrack:self.originalAssetTrack
+                                            atTime:[self timeFromFloat:time]
+                                             error:&error];
+        
+        self.immutableComposition = [self.composition copy];
+//    }
+    NSLog(@"error:%@",error);
+    
+}
+
+
+
 
 #pragma mark - Utility Methods
 
@@ -295,22 +331,29 @@
                                       }];
 }
 
+- (CMTime) timeFromFloat:(float) number
+{
+    return CMTimeMake(self.composition.duration.value * number, self.composition.duration.timescale);
+}
+
 #pragma mark - undo methods
 
 -(void)undoLatestOperationWithCompletion:(void (^)(BOOL))completion {
   [self.undoManager undo];
   self.composition = [self.immutableComposition mutableCopy];
+    self.mainCompositionTrack = [[self.composition tracks] lastObject];
   [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
   [self updateObservers];
   completion(YES);
 }
 
 -(void)redoLatestUndoWithCompletion:(void (^)(BOOL))completion {
-  [self.undoManager redo];
-  self.composition = [self.immutableComposition mutableCopy];
-  [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
-  [self updateObservers];
-  completion(YES);
+    [self.undoManager redo];
+    self.composition = [self.immutableComposition mutableCopy];
+    self.mainCompositionTrack = [[self.composition tracks] lastObject];
+    [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
+    [self updateObservers];
+    completion(YES);
 }
 
 

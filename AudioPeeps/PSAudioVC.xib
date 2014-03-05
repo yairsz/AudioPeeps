@@ -111,6 +111,7 @@
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="iVT-Vl-qal"/>
                     <connections>
                         <action selector="punchInSliderChangedValue:" target="-2" id="T1i-Xx-dRG"/>
+                        <binding destination="-2" name="value" keyPath="self.punchInValue" id="F00-ja-YuS"/>
                     </connections>
                 </slider>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lb5-Ho-9BI">
@@ -119,6 +120,7 @@
                     <sliderCell key="cell" state="on" alignment="left" maxValue="1" doubleValue="1" tickMarkPosition="above" numberOfTickMarks="20" sliderType="linear" id="lNX-sj-gjO"/>
                     <connections>
                         <action selector="punchOutSliderChangedValue:" target="-2" id="xHD-a7-BvT"/>
+                        <binding destination="-2" name="value" keyPath="self.punchOutValue" id="MxF-Ph-aaX"/>
                     </connections>
                 </slider>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HWb-5N-zeh">
@@ -264,20 +266,6 @@
                 </button>
             </subviews>
         </customView>
-        <menu id="3a8-Bj-87n">
-            <items>
-                <menuItem title="Hello" id="Hx7-1T-pfa">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                </menuItem>
-                <menuItem title="Yay" id="mPw-ig-5Ho">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                </menuItem>
-                <menuItem title="Howdy" id="jch-Bg-JF7">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                </menuItem>
-            </items>
-            <accessibility description="Main"/>
-        </menu>
         <customObject id="lNq-Jx-9JF" customClass="PSAudioEditor"/>
         <userDefaultsController representsSharedInstance="YES" id="csD-Rc-6OL"/>
     </objects>
