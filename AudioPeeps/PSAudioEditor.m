@@ -207,11 +207,14 @@
     
     self.asset = [[AVURLAsset alloc] initWithURL:fileURL options:options];
     
-    AVAssetTrack * audioAssetTrack = [[self.asset tracksWithMediaType:AVMediaTypeAudio] lastObject];
-  
-    AVMutableCompositionTrack * compositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-  
-    [compositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, audioAssetTrack.timeRange.duration) ofTrack:audioAssetTrack atTime:kCMTimeZero error:nil];
+    self.originalAssetTrack = [[self.asset tracksWithMediaType:AVMediaTypeAudio] lastObject];
+    
+    self.mainCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+    
+    [self.mainCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero,
+                                                      self.originalAssetTrack.timeRange.duration)
+                                       ofTrack:self.originalAssetTrack
+                                        atTime:kCMTimeZero error:nil];
   
   self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:compositionTrack];
   self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
