@@ -147,16 +147,16 @@
     case kMixInput2:
       if (self.mixInputParameter2On) { // it's on, turn off
         self.mixInputParameter2On = NO;
-        self.tapProcessor.enableMixInput1Filter = NO;
+        self.tapProcessor.enableMixInput2Filter = NO;
       } else { // it's off, turn on
         self.mixInputParameter2On = YES;
-        self.tapProcessor.enableMixInput1Filter = YES;
+        self.tapProcessor.enableMixInput2Filter = YES;
       }
       break;
     default:
       break;
   }
-  
+  NSLog(@"mix 1 on? %i, mix 2 on? %i", self.tapProcessor.isMixInput1Enabled, self.tapProcessor.isMixInput2Enabled);
   [self.tapProcessor flushAudioMix];
   [self updatePlayerItem];
   completion(YES);

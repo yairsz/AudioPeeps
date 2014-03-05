@@ -247,7 +247,7 @@
   } else if ([[sender identifier] isEqualToString:@"mixInput2"]) {
     inputNumber = kMixInput2;
   } else {
-    inputNumber = kMixInput3;
+    return;
   }
   [self.audioEditor toggleMixInput:inputNumber WithCompletion:^(BOOL success) {
     [self updateMixInputButtons];
