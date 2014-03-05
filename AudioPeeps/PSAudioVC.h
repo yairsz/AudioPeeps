@@ -17,6 +17,12 @@
 -(IBAction)redoLastUndo:(id)sender;
 -(IBAction)undoLastChange:(id)sender;
 
+- (IBAction)cut:(id)sender;
+- (IBAction)copy:(id)sender;
+- (IBAction)paste:(id)sender;
+
 @property (nonatomic) CGFloat playTime;
+@property (nonatomic) float punchInValue;
+@property (nonatomic) float punchOutValue;
 
 @end

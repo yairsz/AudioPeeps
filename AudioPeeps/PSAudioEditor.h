@@ -27,6 +27,9 @@
 @property (strong, nonatomic) AVPlayer * player;
 @property (nonatomic) CGFloat playhead;
 
+@property (nonatomic) CMTimeRange copiedTimeRange;
+
+
 //Transport
 - (void) play;
 - (void) pause;
@@ -36,6 +39,7 @@
 
 //Edit
 
+- (void) cutAudioFrom:(float) punchIn to:(float) punchOut;
 - (void) copyAudioFrom:(float) punchIn to:(float) punchOut;
 - (void) pasteAudioAt: (float) time;
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
