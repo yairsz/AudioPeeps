@@ -28,4 +28,14 @@
   [self.audioVC redoLastUndo:sender];
 }
 
+- (IBAction)cut:(id)sender {
+    [self.audioVC cut:sender];
+}
+- (IBAction)copy:(id)sender {
+    [self.audioVC copy:sender];
+}
+- (IBAction)paste:(id)sender{
+    [self.audioVC paste:sender];
+}
+
 @end
