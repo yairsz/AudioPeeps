@@ -216,7 +216,7 @@
                                        ofTrack:self.originalAssetTrack
                                         atTime:kCMTimeZero error:nil];
   
-  self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:compositionTrack];
+  self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:self.mainCompositionTrack];
   self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
   
     [self updatePlayerItem];

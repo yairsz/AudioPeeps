@@ -9,11 +9,6 @@
 #import "PSAudioTapProcessor.h"
 #import "Constants.h"
 
-typedef struct PSAUGraphPlayer {
-  AUGraph graph;
-  AudioUnit psAudioUnit;
-} PSAUGraphPlayer;
-
   // This struct is used to pass along data between the MTAudioProcessingTap callbacks.
 typedef struct AVAudioTapProcessorContext {
 	Boolean supportedTapProcessingFormat;
@@ -29,96 +24,20 @@ typedef struct AVAudioTapProcessorContext {
 	float rightChannelVolume;
 	void *self;
 } AVAudioTapProcessorContext;
-
   // MTAudioProcessingTap callbacks.
 static void tap_InitCallback(MTAudioProcessingTapRef tap, void *clientInfo, void **tapStorageOut);
 static void tap_FinalizeCallback(MTAudioProcessingTapRef tap);
 static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFrames, const AudioStreamBasicDescription *processingFormat);
 static void tap_UnprepareCallback(MTAudioProcessingTapRef tap);
 static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberFrames, MTAudioProcessingTapFlags flags, AudioBufferList *bufferListInOut, CMItemCount *numberFramesOut, MTAudioProcessingTapFlags *flagsOut);
-
   // Audio Unit callbacks.
 static OSStatus AU_RenderCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
+  // Load presets
+static CFPropertyListRef loadPresetForAudioUnit(AudioUnit audioUnit, NSURL *presetUrl);
 
 @interface PSAudioTapProcessor () {
 	AVMutableAudioMix *_audioMix;
 }
-
-static void CheckError(OSStatus error, const char *operation) {
-  if (error == noErr)
-    return;
-  
-  char errorString[20];
-    // See if it appears to be a 4-char code
-  *(UInt32 *)(errorString + 1) = CFSwapInt32HostToBig(error);
-  if (isprint(errorString[1]) && isprint(errorString[2]) &&
-      isprint(errorString[3]) && isprint(errorString[4])) {
-    errorString[0] = errorString[5] = '\'';
-    errorString[6] = '\0';
-  } else {
-      // No, format it as an integer
-    sprintf(errorString, "%d", (int)error);
-  }
-  fprintf(stderr, "Error: %s (%s)\n", operation, errorString);
-  exit(1);
-}
-
-void CreateAUGraph(PSAUGraphPlayer *graphPlayer) {
-  
-    // Create a new AUGraph
-  CheckError(NewAUGraph(&graphPlayer->graph), "NewAUGraph failed");
-  
-    // Opening the graph opens all contained audio units, but
-    // does not allocate any resources yet
-  CheckError(AUGraphOpen(graphPlayer->graph), "AUGraphOpen failed");
-  
-    // output node
-  AudioComponentDescription outputcd = {0};
-  outputcd.componentType = kAudioUnitType_Output;
-  outputcd.componentSubType = kAudioUnitSubType_DefaultOutput;
-  outputcd.componentManufacturer = kAudioUnitManufacturer_Apple;
-  AUNode outputNode;
-  CheckError(AUGraphAddNode(graphPlayer->graph, &outputcd, &outputNode), "AUGraphAddNode[kAudioUnitSubtype_DefaultOutput] failed");
-  
-    // parametric filter
-  AudioComponentDescription parametricEQComponentDescription = {0};
-  parametricEQComponentDescription.componentType = kAudioUnitType_Effect;
-  parametricEQComponentDescription.componentSubType = kAudioUnitSubType_ParametricEQ;
-  parametricEQComponentDescription.componentManufacturer = kAudioUnitManufacturer_Apple;
-  AUNode parametricEQNode;
-  CheckError(AUGraphAddNode(graphPlayer->graph, &parametricEQComponentDescription, &parametricEQNode), "AUGraphAddNode[kAudioUnitSubtype_ParametricEQ] failed");
-  
-    // Get the reference to the AudioUnit object for the parametric EQ graph node
-  CheckError(AUGraphNodeInfo(graphPlayer->graph, parametricEQNode, NULL, &graphPlayer->psAudioUnit), "AUGraphNodeInfo failed");
-  
-  AudioComponentDescription matrixReverbComponentDescription = {0};
-  matrixReverbComponentDescription.componentType = kAudioUnitType_Effect;
-  matrixReverbComponentDescription.componentSubType = kAudioUnitSubType_MatrixReverb;
-  matrixReverbComponentDescription.componentManufacturer = kAudioUnitManufacturer_Apple;
-  AUNode reverbNode;
-  CheckError(AUGraphAddNode(graphPlayer->graph, &matrixReverbComponentDescription, &reverbNode),
-             "AUGraphAddNode[kAudioUnitSubType_MatrixReverb] failed");
-  
-    // Connect the output source of the speech synthesizer AU to the input source of the reverb node
-  CheckError(AUGraphConnectNodeInput(graphPlayer->graph, parametricEQNode, 0, reverbNode, 0),
-             "AUGraphConnectNodeInput (speech to reverb) failed");
-  
-    // Connect the output source of the reverb AU to the input source of the output node
-  CheckError(AUGraphConnectNodeInput(graphPlayer->graph, reverbNode, 0, outputNode, 0),
-             "AUGraphConnectNodeInput (reverb to output) failed");
-  
-    // Get the reference to the AudioUnit object for the reverb graph node
-  AudioUnit reverbUnit;
-  CheckError(AUGraphNodeInfo(graphPlayer->graph, reverbNode, NULL, &reverbUnit), "AUGraphNodeInfo failed");
-  UInt32 roomType = kReverbRoomType_LargeHall;
-  CheckError(AudioUnitSetProperty(reverbUnit, kAudioUnitProperty_ReverbRoomType, kAudioUnitScope_Global, 0, &roomType, sizeof(UInt32)), "AudioUnitSetProperty[kAudioUnitProperty_ReverbRoomType] failed");
-  
-    // Now initialize the graph (this causes the resources to be allocated)
-  CheckError(AUGraphInitialize(graphPlayer->graph), "AUGraphInitialize failed");
-  
-  CAShow(graphPlayer->graph);
-}
-
 @end
 
 @implementation PSAudioTapProcessor
@@ -129,6 +48,7 @@ void CreateAUGraph(PSAUGraphPlayer *graphPlayer) {
 	
 	if (self) {
 		_compositionTrack = compositionTrack;
+    
 	}
 	return self;
 }
@@ -152,13 +72,10 @@ void CreateAUGraph(PSAUGraphPlayer *graphPlayer) {
       callbacks.prepare = tap_PrepareCallback;
       callbacks.unprepare = tap_UnprepareCallback;
       callbacks.process = tap_ProcessCallback;
-      
       MTAudioProcessingTapRef audioProcessingTap;
       if (noErr == MTAudioProcessingTapCreate(kCFAllocatorDefault, &callbacks, kMTAudioProcessingTapCreationFlag_PostEffects, &audioProcessingTap)) {
         audioMixInputParameters.audioTapProcessor = audioProcessingTap;
-        
         CFRelease(audioProcessingTap);
-        
         audioMix.inputParameters = @[audioMixInputParameters];
         _audioMix = audioMix;
 			}
@@ -189,31 +106,28 @@ static void tap_InitCallback(MTAudioProcessingTapRef tap, void *clientInfo, void
 	
 	*tapStorageOut = context;
 }
+
 static void tap_FinalizeCallback(MTAudioProcessingTapRef tap) {
 	AVAudioTapProcessorContext *context = (AVAudioTapProcessorContext *)MTAudioProcessingTapGetStorage(tap);
     // Clear MTAudioProcessingTap context.
 	context->self = NULL;
 	free(context);
 }
+
 static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFrames, const AudioStreamBasicDescription *streamBasicDescription) {
 	AVAudioTapProcessorContext *context = (AVAudioTapProcessorContext *)MTAudioProcessingTapGetStorage(tap);
-	
     // Store sample rate for -setCenterFrequency:.
 	context->sampleRate = streamBasicDescription->mSampleRate;
-	
 	/* Verify processing format (this is not needed for Audio Unit, but for RMS calculation). */
 	context->supportedTapProcessingFormat = true;
-	
 	if (streamBasicDescription->mFormatID != kAudioFormatLinearPCM) {
 		NSLog(@"Unsupported audio format ID for audioProcessingTap. LinearPCM only.");
 		context->supportedTapProcessingFormat = false;
 	}
-	
 	if (!(streamBasicDescription->mFormatFlags & kAudioFormatFlagIsFloat)) {
 		NSLog(@"Unsupported audio format flag for audioProcessingTap. Float only.");
 		context->supportedTapProcessingFormat = false;
 	}
-	
 	if (streamBasicDescription->mFormatFlags & kAudioFormatFlagIsNonInterleaved) {
 		context->isNonInterleaved = true;
 	}
@@ -385,7 +299,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 	AudioUnit audioUnit5;
 	AudioComponentDescription audioComponentDescription5;
 	audioComponentDescription5.componentType = kAudioUnitType_Effect;
-	audioComponentDescription5.componentSubType = kAudioUnitSubType_LowShelfFilter;
+	audioComponentDescription5.componentSubType = kAudioUnitSubType_ParametricEQ;
   audioComponentDescription5.componentManufacturer = kAudioUnitManufacturer_Apple;
 	audioComponentDescription5.componentFlags = 0;
 	audioComponentDescription5.componentFlagsMask = 0;
@@ -412,6 +326,24 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 				UInt64 maximumFramesPerSlice = maxFrames;
 				status = AudioUnitSetProperty(audioUnit5, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &maximumFramesPerSlice, (UInt32)sizeof(UInt32));
 			}
+      
+        // Set audio unit preset
+      if (noErr == status ) {
+        NSLog(@"preset5 being called");
+        NSURL *presetURL5 = [NSURL URLWithString:@"file:///Users/bennettslin/Documents/AudioPeeps/extreme.aupreset"];
+        CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit5, presetURL5);
+        
+        status = AudioUnitSetProperty(audioUnit5,
+                             kAudioUnitProperty_ClassInfo,
+                             kAudioUnitScope_Global,
+                             0,
+                             &propertyList,
+                             sizeof(CFPropertyListRef));
+        
+        CFRelease(propertyList);
+        NSLog(@"preset loaded");
+      }
+      
         // Initialize audio unit.
 			if (noErr == status) {
 				status = AudioUnitInitialize(audioUnit5);
@@ -437,6 +369,22 @@ static void tap_UnprepareCallback(MTAudioProcessingTapRef tap) {
 		AudioComponentInstanceDispose(context->audioUnit2);
 		context->audioUnit2 = NULL;
 	}
+  if (context->audioUnit3) {
+		AudioUnitUninitialize(context->audioUnit3);
+		AudioComponentInstanceDispose(context->audioUnit3);
+		context->audioUnit3 = NULL;
+	}
+  if (context->audioUnit4) {
+		AudioUnitUninitialize(context->audioUnit4);
+		AudioComponentInstanceDispose(context->audioUnit4);
+		context->audioUnit4 = NULL;
+	}
+  if (context->audioUnit5) {
+		AudioUnitUninitialize(context->audioUnit5);
+		AudioComponentInstanceDispose(context->audioUnit5);
+		context->audioUnit5 = NULL;
+	}
+  
 }
 static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberFrames, MTAudioProcessingTapFlags flags, AudioBufferList *bufferListInOut, CMItemCount *numberFramesOut, MTAudioProcessingTapFlags *flagsOut) {
 	AVAudioTapProcessorContext *context = (AVAudioTapProcessorContext *)MTAudioProcessingTapGetStorage(tap);
@@ -455,7 +403,7 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
     if (self.isMixInput1Enabled) {
       AudioUnit audioUnit = context->audioUnit1;
       if (audioUnit) {
-        NSLog(@"mix input 1 on");
+//        NSLog(@"mix input 1 on");
         AudioTimeStamp audioTimeStamp;
         audioTimeStamp.mSampleTime = context->sampleCount;
         audioTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
@@ -474,7 +422,7 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
     if (self.isMixInput2Enabled) {
       AudioUnit audioUnit = context->audioUnit2;
       if (audioUnit) {
-        NSLog(@"mix input 2 on");
+//        NSLog(@"mix input 2 on");
         AudioTimeStamp audioTimeStamp;
         audioTimeStamp.mSampleTime = context->sampleCount;
         audioTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
@@ -491,7 +439,7 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
       }
     }
     if (self.isMixInput3Enabled) {
-      NSLog(@"mix input 3 on");
+//      NSLog(@"mix input 3 on");
       AudioUnit audioUnit = context->audioUnit3;
       if (audioUnit) {
         AudioTimeStamp audioTimeStamp;
@@ -512,7 +460,7 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
     if (self.isMixInput4Enabled) {
       AudioUnit audioUnit = context->audioUnit4;
       if (audioUnit) {
-        NSLog(@"mix input 4 on");
+//        NSLog(@"mix input 4 on");
         AudioTimeStamp audioTimeStamp;
         audioTimeStamp.mSampleTime = context->sampleCount;
         audioTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
@@ -531,7 +479,7 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
     if (self.isMixInput5Enabled) {
       AudioUnit audioUnit = context->audioUnit5;
       if (audioUnit) {
-        NSLog(@"mix input 5 on");
+//        NSLog(@"mix input 5 on");
         AudioTimeStamp audioTimeStamp;
         audioTimeStamp.mSampleTime = context->sampleCount;
         audioTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
@@ -562,4 +510,15 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
 OSStatus AU_RenderCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData) {
     // Just return audio buffers from MTAudioProcessingTap.
 	return MTAudioProcessingTapGetSourceAudio(inRefCon, inNumberFrames, ioData, NULL, NULL, NULL);
+}
+
+CFPropertyListRef loadPresetForAudioUnit(AudioUnit audioUnit, NSURL *presetUrl) {
+  CFDataRef dataRef = (CFDataRef) [NSData dataWithContentsOfURL:presetUrl];
+  CFPropertyListRef presetPropertyList = 0;
+  presetPropertyList = CFPropertyListCreateWithData(kCFAllocatorDefault,
+                                                    dataRef,
+                                                    kCFPropertyListImmutable,
+                                                    NULL,
+                                                    NULL);
+  return presetPropertyList;
 }
