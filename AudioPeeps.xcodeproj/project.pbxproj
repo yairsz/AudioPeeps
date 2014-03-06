@@ -27,6 +27,7 @@
 		B00AF47D18BABA4C00ADD426 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00AF47C18BABA4C00ADD426 /* AVFoundation.framework */; };
 		B00AF49518BACF8800ADD426 /* PSAudioVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B00AF49318BACF8800ADD426 /* PSAudioVC.m */; };
 		B00AF49818BAEE6C00ADD426 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00AF49718BAEE6C00ADD426 /* CoreMedia.framework */; };
+		B08A072D18C84FA700FAFE70 /* 1minSilence.aif in Resources */ = {isa = PBXBuildFile; fileRef = B08A072B18C84C4400FAFE70 /* 1minSilence.aif */; };
 		B08B7C6318C54A270073E02B /* SSDragAudioImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = B08B7C6218C54A270073E02B /* SSDragAudioImageView.m */; };
 		B0B9691418C572D6006B9337 /* PSAudioVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B0B9691318C572D6006B9337 /* PSAudioVC.xib */; };
 		B0CC6D7418C2B6BD009ED340 /* PSAudioExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = B0CC6D7318C2B6BD009ED340 /* PSAudioExporter.m */; };
@@ -77,6 +78,7 @@
 		B00AF49318BACF8800ADD426 /* PSAudioVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSAudioVC.m; sourceTree = "<group>"; };
 		B00AF49718BAEE6C00ADD426 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		B02319B418BED87D00E2F03C /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		B08A072B18C84C4400FAFE70 /* 1minSilence.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1minSilence.aif; sourceTree = "<group>"; };
 		B08B7C6118C54A270073E02B /* SSDragAudioImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSDragAudioImageView.h; sourceTree = "<group>"; };
 		B08B7C6218C54A270073E02B /* SSDragAudioImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSDragAudioImageView.m; sourceTree = "<group>"; };
 		B0B9691318C572D6006B9337 /* PSAudioVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PSAudioVC.xib; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 		B00AF44C18BAB8C500ADD426 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B08A072B18C84C4400FAFE70 /* 1minSilence.aif */,
 				B00AF44D18BAB8C500ADD426 /* AudioPeeps-Info.plist */,
 				B00AF44E18BAB8C500ADD426 /* InfoPlist.strings */,
 				B00AF45118BAB8C500ADD426 /* main.m */,
@@ -294,6 +297,7 @@
 				B00AF45E18BAB8C500ADD426 /* Images.xcassets in Resources */,
 				B00AF45618BAB8C500ADD426 /* Credits.rtf in Resources */,
 				B00AF45C18BAB8C500ADD426 /* MainMenu.xib in Resources */,
+				B08A072D18C84FA700FAFE70 /* 1minSilence.aif in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

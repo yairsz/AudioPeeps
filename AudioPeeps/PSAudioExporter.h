@@ -11,7 +11,11 @@
 
 @interface PSAudioExporter : NSObject
 
-- (PSAudioExporter *) initWithAsset: (AVAsset *) asset andURL: (NSURL *) outputURL andFileType: (NSString *) fileType;
+
+- (PSAudioExporter *) initWithAsset: (AVAsset *) asset
+                             andURL: (NSURL *) outputURL
+                        andFileType: (NSString *) fileType
+                        andAudioMix: (AVAudioMix *) audioMix;
 - (void)cancel;
 
 @end

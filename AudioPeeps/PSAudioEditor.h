@@ -29,6 +29,8 @@
 @property BOOL mixInputParameter4On;
 @property BOOL mixInputParameter5On;
 
+@property (strong, nonatomic) AVAudioMix * audioMix;
+
 @property (strong, nonatomic) AVPlayer * player;
 @property (nonatomic) CGFloat playhead;
 

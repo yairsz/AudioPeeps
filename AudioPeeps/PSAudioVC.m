@@ -323,7 +323,8 @@
             NSURL * URL = [saveDlg URL];
             self.audioExporter = [[PSAudioExporter alloc] initWithAsset:self.audioEditor.composition
                                                                  andURL:URL
-                                                            andFileType:self.fileType];
+                                                            andFileType:self.fileType
+                                                            andAudioMix:self.audioEditor.audioMix];
         } else {
             return;
         }

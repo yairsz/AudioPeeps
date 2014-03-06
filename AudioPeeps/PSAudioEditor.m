@@ -21,6 +21,9 @@
 @property (strong, nonatomic) PSAudioTapProcessor *tapProcessor;
 @property (strong, nonatomic) dispatch_queue_t timeUpdateQueue;
 @property (nonatomic) CMTime duration;
+@property (nonatomic) CMTime mainTrackDuration;
+@property (nonatomic) CMTime mainTrackStart;
+@property (nonatomic) CMTime mainTrackEnd;
 @property (strong, nonatomic) AVComposition *immutableComposition;
 @property (strong, nonatomic) id observer;
 @property (strong, nonatomic) AVAssetTrack * originalAssetTrack;
@@ -109,6 +112,10 @@
 {
     _playhead = playhead;
     [self seekToTime:playhead];
+}
+
+- (AVAudioMix *) audioMix {
+    return self.playerItem.audioMix;
 }
 
 #pragma mark - Transport Methods
@@ -227,9 +234,12 @@
                                                       self.originalAssetTrack.timeRange.duration)
                                   ofTrack:self.originalAssetTrack
                                    atTime:kCMTimeZero error:nil];
-  
-  self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:mainCompositionTrack];
-  self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
+    self.mainTrackStart = kCMTimeZero;
+    self.mainTrackEnd = self.originalAssetTrack.timeRange.duration;
+    self.mainTrackDuration = self.originalAssetTrack.timeRange.duration;
+    
+    self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:mainCompositionTrack];
+    self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
   
     [self updatePlayerItem];
   
@@ -253,6 +263,13 @@
     if (!troCompositionTrack) {
         troCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
         self.troTrackID = troCompositionTrack.trackID;
+        NSURL * URLforSilence = [[NSBundle mainBundle] URLForResource:@"1minSilence" withExtension:@"aif"];
+        AVURLAsset * silence = [[AVURLAsset alloc] initWithURL:URLforSilence options:options];
+        AVAssetTrack *silenceTrack = [[silence tracksWithMediaType:AVMediaTypeAudio] lastObject];
+        [troCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, self.composition.duration)
+                                     ofTrack:silenceTrack
+                                      atTime:kCMTimeZero
+                                       error:nil];
     }
     
     CMTimeRange insertTimeRange = CMTimeRangeMake(kCMTimeZero,
@@ -264,7 +281,12 @@
                                  ofTrack:introAssetTrack
                                   atTime:kCMTimeZero error:nil];
     
+    self.mainTrackStart = introAssetTrack.timeRange.duration;
+    self.mainTrackEnd = CMTimeAdd(self.mainTrackEnd, introAssetTrack.timeRange.duration);
 
+    for (AVMutableCompositionTrack * track in self.composition.tracks) {
+        NSLog(@"\n\n before \n\n%@",track.segments);
+    }
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
@@ -320,21 +342,30 @@
 
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
 {
-    [self.player pause];
+    [self pause];
+    
+    for (AVMutableCompositionTrack * track in self.composition.tracks) {
+        NSLog(@"\n\n before \n\n%@",track.segments);
+    }
     CMTime inTime = [self timeFromFloat:punchIn];
     CMTime outTime = [self timeFromFloat:punchOut];
-    
+    NSLog(@"\nin:       %f\nout:     %f\ncomposition:%f",CMTimeGetSeconds(inTime),CMTimeGetSeconds(outTime),CMTimeGetSeconds(self.composition.duration) );
+
     [self.composition removeTimeRange:CMTimeRangeMake(inTime, outTime)];
   
+    NSLog(@"\n cut composition:%f",CMTimeGetSeconds(self.composition.duration) );
     self.immutableComposition = [self.composition copy];
   
+    for (AVMutableCompositionTrack * track in self.composition.tracks) {
+        NSLog(@"\n\n after \n\n%@",track.segments);
+    }
     [self updateObservers];
 }
 
 
 - (void) cutAudioFrom:(float) punchIn to:(float) punchOut
 {
-    [self.player pause];
+    [self pause];
     [self copyAudioFrom:punchIn to:punchIn];
     [self deleteAudioFrom:punchIn to:punchOut];
     
@@ -342,20 +373,27 @@
 
 - (void) copyAudioFrom:(float) punchIn to:(float) punchOut
 {
-    self.copiedTimeRange = CMTimeRangeMake([self timeFromFloat:punchIn],
-                                           [self timeFromFloat:punchOut]);
+    CMTime inTime = [self timeFromFloat:punchIn];
+    CMTime outTime = [self timeFromFloat:punchOut];
+    
+    self.copiedTimeRange = CMTimeRangeMake(inTime,
+                                           outTime);
 }
 
 - (void) pasteAudioAt: (float) time
 {
-    [self.player pause];
+    [self pause];
     NSError * error;
+    
+    CMTime mainTime = [self timeFromFloat:time];
     
     AVMutableCompositionTrack * mainCompositionTrack = (AVMutableCompositionTrack *)[self.composition trackWithTrackID:self.mainTrackID];
     
+    [self.composition insertEmptyTimeRange:self.copiedTimeRange];
+    
     [mainCompositionTrack insertTimeRange:self.copiedTimeRange
                                 ofTrack:self.originalAssetTrack
-                                atTime:[self timeFromFloat:time]
+                                atTime:mainTime
                                 error:&error];
         
     self.immutableComposition = [self.composition copy];
@@ -404,7 +442,20 @@
 
 - (CMTime) timeFromFloat:(float) number
 {
-    return CMTimeMake(self.composition.duration.value * number, self.composition.duration.timescale);
+    CMTime timeRelativeToMainTrack = CMTimeMultiplyByFloat64(self.mainTrackDuration,number);
+    CMTime timeWithOffset = CMTimeAdd(timeRelativeToMainTrack,self.mainTrackStart);
+    
+    
+//    NSLog(@"Composition Duration %f\nmain duration %f\nmain start %f\nmain end %f\ntime relative to main %f\ntime with offset %f",
+//          CMTimeGetSeconds(self.composition.duration),
+//          CMTimeGetSeconds(self.mainTrackDuration),
+//          CMTimeGetSeconds(self.mainTrackStart),
+//          CMTimeGetSeconds(self.mainTrackEnd),
+//          CMTimeGetSeconds(timeRelativeToMainTrack),
+//          CMTimeGetSeconds(timeWithOffset));
+    
+    
+    return timeWithOffset;
 }
 
 #pragma mark - undo methods

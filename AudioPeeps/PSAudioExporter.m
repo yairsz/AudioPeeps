@@ -20,7 +20,8 @@
 @property (strong, nonatomic) AVAssetWriterInput * assetWriterAudioInput;
 
 @property (strong, nonatomic) AVAssetReader * assetReader;
-@property (strong, nonatomic) AVAssetReaderOutput * assetReaderAudioOutput;
+@property (strong, nonatomic) AVAssetReaderAudioMixOutput * assetReaderAudioMixOutput;
+@property (strong, nonatomic) AVAudioMix * audioMix;
 @property (strong, nonatomic) NSNumber * formatIDKey;
 
 @property (strong, nonatomic) AVAsset * asset;
@@ -31,9 +32,10 @@
 
 @implementation PSAudioExporter
 
-- (PSAudioExporter *) initWithAsset: (AVAsset *) asset andURL: (NSURL *) outputURL andFileType: (NSString *) fileType
+- (PSAudioExporter *) initWithAsset: (AVAsset *) asset andURL: (NSURL *) outputURL andFileType: (NSString *) fileType andAudioMix:(AVAudioMix *)audioMix
 {
     if (self = [super init]) {
+        self.audioMix = audioMix;
     NSString *serializationQueueDescription = [NSString stringWithFormat:@"%@ serialization queue", self];
     // Create the main serialization queue.
     self.mainSerializationQueue = dispatch_queue_create([serializationQueueDescription UTF8String], NULL);
@@ -105,8 +107,9 @@
         {
             // If there is an audio track to read, set the decompression settings to Linear PCM and create the asset reader output.
             NSDictionary *decompressionAudioSettings = @{ AVFormatIDKey : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] };
-            self.assetReaderAudioOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:assetAudioTrack outputSettings:decompressionAudioSettings];
-            [self.assetReader addOutput:self.assetReaderAudioOutput];
+            self.assetReaderAudioMixOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:self.asset.tracks audioSettings:decompressionAudioSettings];
+            self.assetReaderAudioMixOutput.audioMix = self.audioMix;
+            [self.assetReader addOutput:self.assetReaderAudioMixOutput];
             
             // Then, set the compression settings to User Setting and create the asset writer input.
             AudioChannelLayout stereoChannelLayout = {
@@ -172,7 +175,7 @@
                 while ([self.assetWriterAudioInput isReadyForMoreMediaData] && !completedOrFailed)
                 {
                     // Get the next audio sample buffer, and append it to the output file.
-                    CMSampleBufferRef sampleBuffer = [self.assetReaderAudioOutput copyNextSampleBuffer];
+                    CMSampleBufferRef sampleBuffer = [self.assetReaderAudioMixOutput copyNextSampleBuffer];
                     if (sampleBuffer != NULL)
                     {
                         BOOL success = [self.assetWriterAudioInput appendSampleBuffer:sampleBuffer];
