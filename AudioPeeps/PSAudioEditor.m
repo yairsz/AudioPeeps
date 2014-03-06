@@ -26,6 +26,7 @@
 @property (strong, nonatomic) AVAssetTrack * originalAssetTrack;
 @property (strong, nonatomic) AVMutableCompositionTrack * mainCompositionTrack;
 @property (strong, nonatomic) AVMutableCompositionTrack * troCompositionTrack;
+@property (strong, nonatomic) AVMutableAudioMixInputParameters *troInputParams;
 
 
 @end
@@ -100,11 +101,17 @@
     return _player;
 }
 
+- (float) durationInSeconds {
+    return self.composition.duration.value /self.composition.duration.timescale;
+}
+
 - (AVMutableCompositionTrack *) troCompositionTrack
 {
     if (!_troCompositionTrack) {
         _troCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-        
+        [_troCompositionTrack insertEmptyTimeRange:CMTimeRangeMake(kCMTimeZero, self.composition.duration)];
+        self.troInputParams = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:_troCompositionTrack];
+        self.tapProcessor.audioMix.inputParameters = [self.tapProcessor.audioMix.inputParameters arrayByAddingObject:self.troInputParams];
     }
     return _troCompositionTrack;
 }
@@ -243,7 +250,7 @@
 
 - (void) loadIntro:(NSURL *)introURL completion:(void(^)(BOOL success))completion
 {
-    
+
     NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
     
     AVAsset * introAsset = [[AVURLAsset alloc] initWithURL:introURL options:options];
@@ -259,6 +266,8 @@
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
+    completion(YES);
+
 }
 
 - (void) loadOutro:(NSURL *)outroURL completion:(void(^)(BOOL success))completion
@@ -279,6 +288,7 @@
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
+    completion(YES);
 }
 
 

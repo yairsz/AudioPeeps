@@ -20,6 +20,7 @@
 @interface PSAudioEditor : NSObject
 
 @property (strong, nonatomic) AVMutableComposition * composition;
+@property (nonatomic) float durationInSeconds;
 @property (strong, nonatomic) NSUndoManager *undoManager;
 @property (unsafe_unretained) id <PSAudioEditorDelegate> delegate;
 @property BOOL mixInputParameter1On;
