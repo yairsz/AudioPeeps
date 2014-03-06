@@ -132,6 +132,72 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 		context->isNonInterleaved = true;
 	}
 
+  int audioUnitsArray[5] = {kAudioUnitSubType_PeakLimiter, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ};
+  
+  int contextsArray[5] = {context->audioUnit1, context->audioUnit2, context->audioUnit3, context->audioUnit4, context->audioUnit5};
+  
+  NSArray *fileNamesArray = @[@"myPreset1", @"myPreset2", @"myPreset3", @"myPreset4", @"myPreset5"];
+  
+  for (int i = 1; i <= 5; i++) {
+   	AudioUnit audioUnit;
+    AudioComponentDescription audioComponentDescription;
+    audioComponentDescription.componentType = kAudioUnitType_Effect;
+    audioComponentDescription.componentSubType = audioUnitsArray[i];
+    audioComponentDescription.componentManufacturer = kAudioUnitManufacturer_Apple;
+    audioComponentDescription.componentFlags = 0;
+    audioComponentDescription.componentFlagsMask = 0;
+    AudioComponent audioComponent = AudioComponentFindNext(NULL, &audioComponentDescription);
+    if (audioComponent) {
+      if (noErr == AudioComponentInstanceNew(audioComponent, &audioUnit)) {
+        OSStatus status = noErr;
+          // Set audio unit input/output stream format to processing format.
+        if (noErr == status) {
+          status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
+        }
+        if (noErr == status) {
+          status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
+        }
+          // Set audio unit render callback.
+        if (noErr == status) {
+          AURenderCallbackStruct renderCallbackStruct;
+          renderCallbackStruct.inputProc = AU_RenderCallback;
+          renderCallbackStruct.inputProcRefCon = (void *)tap;
+          status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
+        }
+          // Set audio unit maximum frames per slice to max frames.
+        if (noErr == status) {
+          UInt64 maximumFramesPerSlice = maxFrames;
+          status = AudioUnitSetProperty(audioUnit, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &maximumFramesPerSlice, (UInt32)sizeof(UInt32));
+        }
+        
+          // Set audio unit preset
+        if (noErr == status) {
+          NSString *urlString = [NSString stringWithFormat:@"file:///Users/bennettslin/Documents/AudioPeeps/%@.aupreset", [fileNamesArray objectAtIndex:i]];
+          NSURL *presetURL1 = [NSURL URLWithString:urlString];
+          CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit, presetURL1);
+          
+          status = AudioUnitSetProperty(audioUnit,
+                                        kAudioUnitProperty_ClassInfo,
+                                        kAudioUnitScope_Global,
+                                        0,
+                                        &propertyList,
+                                        sizeof(CFPropertyListRef));
+          
+          CFRelease(propertyList);
+        }
+        
+          // Initialize audio unit.
+        if (noErr == status) {
+          status = AudioUnitInitialize(audioUnit);
+        } else {
+          AudioComponentInstanceDispose(audioUnit);
+          audioUnit = NULL;
+        }
+        context->audioUnit1 = audioUnit;
+      }
+    }
+  }
+  
 	AudioUnit audioUnit1;
 	AudioComponentDescription audioComponentDescription1;
 	audioComponentDescription1.componentType = kAudioUnitType_Effect;
@@ -165,7 +231,8 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
       
         // Set audio unit preset
       if (noErr == status) {
-        NSURL *presetURL1 = [NSURL URLWithString:@"file:///Users/bennettslin/Documents/AudioPeeps/myPreset1.aupreset"];
+        NSString *urlString = [NSString stringWithFormat:@"file:///Users/bennettslin/Documents/AudioPeeps/%@.aupreset", @"myPreset1"];
+        NSURL *presetURL1 = [NSURL URLWithString:urlString];
         CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit1, presetURL1);
         
         status = AudioUnitSetProperty(audioUnit1,
