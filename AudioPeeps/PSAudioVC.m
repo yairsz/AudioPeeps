@@ -307,15 +307,22 @@
 }
 
 - (IBAction)export:(id)sender {
-    
-    // temporarily get metadata from hard coded info
-  [self populateMetadata];
-  
     // Create the File Open Dialog class.
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
     NSInteger randomNumber = arc4random() % 1000;
   
-    NSString * fileName = [NSString stringWithFormat:@"ExportAudio-%ld%@",randomNumber,self.fileExtension];
+    // temporarily get metadata from hard coded info
+  [self populateMetadata];
+  
+  NSString *podcastName;
+  for (AVMutableMetadataItem *thisItem in self.metadataArray) {
+    if (thisItem.key == AVMetadataCommonKeyTitle) {
+      podcastName = (NSString *)thisItem.value;
+    }
+  }
+  
+    NSString * fileName = [NSString stringWithFormat:@"%@-%ld%@", podcastName, randomNumber,self.fileExtension];
+  
     [saveDlg setNameFieldStringValue:fileName];
     
     // Display the dialog.  If the OK button was pressed,
@@ -336,7 +343,6 @@
 }
 
 -(void)populateMetadata {
-
   AVMutableMetadataItem *artistItem = [AVMutableMetadataItem metadataItem];
   AVMutableMetadataItem *albumItem = [AVMutableMetadataItem metadataItem];
   AVMutableMetadataItem *titleItem = [AVMutableMetadataItem metadataItem];
@@ -351,14 +357,13 @@
   
   artistItem.value = @"Mr. Podcaster";
   albumItem.value = @"My podcast album";
-  titleItem.value = @"Podcast numero uno";
+  titleItem.value = @"Mr. Podcaster's podcast";
   
   NSMutableArray *tempArray = [NSMutableArray new];
   [tempArray addObject:artistItem];
   [tempArray addObject:albumItem];
   [tempArray addObject:titleItem];
   self.metadataArray = [NSArray arrayWithArray:tempArray];
-  
 }
 
 #pragma mark - undo and redo methods
