@@ -48,7 +48,6 @@ static CFPropertyListRef loadPresetForAudioUnit(AudioUnit audioUnit, NSURL *pres
 	
 	if (self) {
 		_compositionTrack = compositionTrack;
-    
 	}
 	return self;
 }
@@ -133,12 +132,10 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 	}
 
   int audioUnitsArray[5] = {kAudioUnitSubType_PeakLimiter, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ};
-  
-  int contextsArray[5] = {context->audioUnit1, context->audioUnit2, context->audioUnit3, context->audioUnit4, context->audioUnit5};
-  
   NSArray *fileNamesArray = @[@"myPreset1", @"myPreset2", @"myPreset3", @"myPreset4", @"myPreset5"];
   
-  for (int i = 1; i <= 5; i++) {
+//  /*
+  for (int i = 0; i < 5; i++) {
    	AudioUnit audioUnit;
     AudioComponentDescription audioComponentDescription;
     audioComponentDescription.componentType = kAudioUnitType_Effect;
@@ -173,8 +170,8 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
           // Set audio unit preset
         if (noErr == status) {
           NSString *urlString = [NSString stringWithFormat:@"file:///Users/bennettslin/Documents/AudioPeeps/%@.aupreset", [fileNamesArray objectAtIndex:i]];
-          NSURL *presetURL1 = [NSURL URLWithString:urlString];
-          CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit, presetURL1);
+          NSURL *presetURL = [NSURL URLWithString:urlString];
+          CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit, presetURL);
           
           status = AudioUnitSetProperty(audioUnit,
                                         kAudioUnitProperty_ClassInfo,
@@ -182,7 +179,6 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
                                         0,
                                         &propertyList,
                                         sizeof(CFPropertyListRef));
-          
           CFRelease(propertyList);
         }
         
@@ -193,296 +189,31 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
           AudioComponentInstanceDispose(audioUnit);
           audioUnit = NULL;
         }
-        context->audioUnit1 = audioUnit;
+        
+          // there must be a better way to do this...
+        switch (i) {
+          case 0:
+            context->audioUnit1 = audioUnit;
+            break;
+          case 1:
+            context->audioUnit2 = audioUnit;
+            break;
+          case 2:
+            context->audioUnit3 = audioUnit;
+            break;
+          case 3:
+            context->audioUnit4 = audioUnit;
+            break;
+          case 4:
+            context->audioUnit5 = audioUnit;
+            break;
+          default:
+            break;
+        }
       }
     }
   }
-  
-	AudioUnit audioUnit1;
-	AudioComponentDescription audioComponentDescription1;
-	audioComponentDescription1.componentType = kAudioUnitType_Effect;
-	audioComponentDescription1.componentSubType = kAudioUnitSubType_PeakLimiter;
-  audioComponentDescription1.componentManufacturer = kAudioUnitManufacturer_Apple;
-	audioComponentDescription1.componentFlags = 0;
-	audioComponentDescription1.componentFlagsMask = 0;
-	AudioComponent audioComponent1 = AudioComponentFindNext(NULL, &audioComponentDescription1);
-	if (audioComponent1) {
-		if (noErr == AudioComponentInstanceNew(audioComponent1, &audioUnit1)) {
-			OSStatus status = noErr;
-        // Set audio unit input/output stream format to processing format.
-			if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit1, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-      if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit1, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-        // Set audio unit render callback.
-			if (noErr == status) {
-				AURenderCallbackStruct renderCallbackStruct;
-				renderCallbackStruct.inputProc = AU_RenderCallback;
-				renderCallbackStruct.inputProcRefCon = (void *)tap;
-				status = AudioUnitSetProperty(audioUnit1, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
-			}
-        // Set audio unit maximum frames per slice to max frames.
-			if (noErr == status) {
-				UInt64 maximumFramesPerSlice = maxFrames;
-				status = AudioUnitSetProperty(audioUnit1, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &maximumFramesPerSlice, (UInt32)sizeof(UInt32));
-			}
-      
-        // Set audio unit preset
-      if (noErr == status) {
-        NSString *urlString = [NSString stringWithFormat:@"file:///Users/bennettslin/Documents/AudioPeeps/%@.aupreset", @"myPreset1"];
-        NSURL *presetURL1 = [NSURL URLWithString:urlString];
-        CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit1, presetURL1);
-        
-        status = AudioUnitSetProperty(audioUnit1,
-                                      kAudioUnitProperty_ClassInfo,
-                                      kAudioUnitScope_Global,
-                                      0,
-                                      &propertyList,
-                                      sizeof(CFPropertyListRef));
-        
-        CFRelease(propertyList);
-      }
-      
-        // Initialize audio unit.
-			if (noErr == status) {
-				status = AudioUnitInitialize(audioUnit1);
-			} else {
-				AudioComponentInstanceDispose(audioUnit1);
-				audioUnit1 = NULL;
-			}
-			context->audioUnit1 = audioUnit1;
-		}
-	}
-  
-	AudioUnit audioUnit2;
-	AudioComponentDescription audioComponentDescription2;
-	audioComponentDescription2.componentType = kAudioUnitType_Effect;
-	audioComponentDescription2.componentSubType = kAudioUnitSubType_NBandEQ;
-	audioComponentDescription2.componentManufacturer = kAudioUnitManufacturer_Apple;
-	audioComponentDescription2.componentFlags = 0;
-	audioComponentDescription2.componentFlagsMask = 0;
-	AudioComponent audioComponent2 = AudioComponentFindNext(NULL, &audioComponentDescription2);
-	if (audioComponent2) {
-		if (noErr == AudioComponentInstanceNew(audioComponent2, &audioUnit2)) {
-			OSStatus status = noErr;
-        // Set audio unit input/output stream format to processing format.
-			if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit2, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-      if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit2, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-        // Set audio unit render callback.
-			if (noErr == status) {
-				AURenderCallbackStruct renderCallbackStruct;
-				renderCallbackStruct.inputProc = AU_RenderCallback;
-				renderCallbackStruct.inputProcRefCon = (void *)tap;
-				status = AudioUnitSetProperty(audioUnit2, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
-			}
-        // Set audio unit maximum frames per slice to max frames.
-			if (noErr == status) {
-				UInt64 maximumFramesPerSlice = maxFrames;
-				status = AudioUnitSetProperty(audioUnit2, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &maximumFramesPerSlice, (UInt32)sizeof(UInt32));
-			}
-      
-        // Set audio unit preset
-      if (noErr == status) {
-        NSURL *presetURL2 = [NSURL URLWithString:@"file:///Users/bennettslin/Documents/AudioPeeps/myPreset2.aupreset"];
-        CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit2, presetURL2);
-        
-        status = AudioUnitSetProperty(audioUnit2,
-                                      kAudioUnitProperty_ClassInfo,
-                                      kAudioUnitScope_Global,
-                                      0,
-                                      &propertyList,
-                                      sizeof(CFPropertyListRef));
-        
-        CFRelease(propertyList);
-      }
-      
-        // Initialize audio unit.
-			if (noErr == status) {
-				status = AudioUnitInitialize(audioUnit2);
-			} else {
-				AudioComponentInstanceDispose(audioUnit2);
-				audioUnit2 = NULL;
-			}
-			context->audioUnit2 = audioUnit2;
-		}
-	}
-  
-	AudioUnit audioUnit3;
-	AudioComponentDescription audioComponentDescription3;
-	audioComponentDescription3.componentType = kAudioUnitType_Effect;
-	audioComponentDescription3.componentSubType = kAudioUnitSubType_NBandEQ;
-	audioComponentDescription3.componentManufacturer = kAudioUnitManufacturer_Apple;
-	audioComponentDescription3.componentFlags = 0;
-	audioComponentDescription3.componentFlagsMask = 0;
-	AudioComponent audioComponent3 = AudioComponentFindNext(NULL, &audioComponentDescription3);
-	if (audioComponent3) {
-		if (noErr == AudioComponentInstanceNew(audioComponent3, &audioUnit3)) {
-			OSStatus status = noErr;
-        // Set audio unit input/output stream format to processing format.
-			if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit3, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-      if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit3, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-        // Set audio unit render callback.
-			if (noErr == status) {
-				AURenderCallbackStruct renderCallbackStruct;
-				renderCallbackStruct.inputProc = AU_RenderCallback;
-				renderCallbackStruct.inputProcRefCon = (void *)tap;
-				status = AudioUnitSetProperty(audioUnit3, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
-			}
-        // Set audio unit maximum frames per slice to max frames.
-			if (noErr == status) {
-				UInt64 maximumFramesPerSlice = maxFrames;
-				status = AudioUnitSetProperty(audioUnit3, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &maximumFramesPerSlice, (UInt32)sizeof(UInt32));
-			}
-      
-        // Set audio unit preset
-      if (noErr == status) {
-        NSURL *presetURL3 = [NSURL URLWithString:@"file:///Users/bennettslin/Documents/AudioPeeps/myPreset3.aupreset"];
-        CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit3, presetURL3);
-        
-        status = AudioUnitSetProperty(audioUnit3,
-                                      kAudioUnitProperty_ClassInfo,
-                                      kAudioUnitScope_Global,
-                                      0,
-                                      &propertyList,
-                                      sizeof(CFPropertyListRef));
-        
-        CFRelease(propertyList);
-      }
-      
-        // Initialize audio unit.
-			if (noErr == status) {
-				status = AudioUnitInitialize(audioUnit3);
-			} else {
-				AudioComponentInstanceDispose(audioUnit3);
-				audioUnit3 = NULL;
-			}
-			context->audioUnit3 = audioUnit3;
-		}
-	}
-  
-  AudioUnit audioUnit4;
-	AudioComponentDescription audioComponentDescription4;
-	audioComponentDescription4.componentType = kAudioUnitType_Effect;
-	audioComponentDescription4.componentSubType = kAudioUnitSubType_NBandEQ;
-  audioComponentDescription4.componentManufacturer = kAudioUnitManufacturer_Apple;
-	audioComponentDescription4.componentFlags = 0;
-	audioComponentDescription4.componentFlagsMask = 0;
-	AudioComponent audioComponent4 = AudioComponentFindNext(NULL, &audioComponentDescription4);
-	if (audioComponent4) {
-		if (noErr == AudioComponentInstanceNew(audioComponent4, &audioUnit4)) {
-			OSStatus status = noErr;
-        // Set audio unit input/output stream format to processing format.
-			if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit4, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-      if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit4, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-        // Set audio unit render callback.
-			if (noErr == status) {
-				AURenderCallbackStruct renderCallbackStruct;
-				renderCallbackStruct.inputProc = AU_RenderCallback;
-				renderCallbackStruct.inputProcRefCon = (void *)tap;
-				status = AudioUnitSetProperty(audioUnit4, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
-			}
-        // Set audio unit maximum frames per slice to max frames.
-			if (noErr == status) {
-				UInt64 maximumFramesPerSlice = maxFrames;
-				status = AudioUnitSetProperty(audioUnit4, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &maximumFramesPerSlice, (UInt32)sizeof(UInt32));
-			}
-      
-        // Set audio unit preset
-      if (noErr == status) {
-        NSURL *presetURL4 = [NSURL URLWithString:@"file:///Users/bennettslin/Documents/AudioPeeps/myPreset4.aupreset"];
-        CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit4, presetURL4);
-        
-        status = AudioUnitSetProperty(audioUnit4,
-                                      kAudioUnitProperty_ClassInfo,
-                                      kAudioUnitScope_Global,
-                                      0,
-                                      &propertyList,
-                                      sizeof(CFPropertyListRef));
-        
-        CFRelease(propertyList);
-      }
-      
-        // Initialize audio unit.
-			if (noErr == status) {
-				status = AudioUnitInitialize(audioUnit4);
-			} else {
-				AudioComponentInstanceDispose(audioUnit4);
-				audioUnit4 = NULL;
-			}
-			context->audioUnit4 = audioUnit4;
-		}
-	}
-  
-	AudioUnit audioUnit5;
-	AudioComponentDescription audioComponentDescription5;
-	audioComponentDescription5.componentType = kAudioUnitType_Effect;
-	audioComponentDescription5.componentSubType = kAudioUnitSubType_NBandEQ;
-  audioComponentDescription5.componentManufacturer = kAudioUnitManufacturer_Apple;
-	audioComponentDescription5.componentFlags = 0;
-	audioComponentDescription5.componentFlagsMask = 0;
-	AudioComponent audioComponent5 = AudioComponentFindNext(NULL, &audioComponentDescription5);
-	if (audioComponent5) {
-		if (noErr == AudioComponentInstanceNew(audioComponent5, &audioUnit5)) {
-			OSStatus status = noErr;
-        // Set audio unit input/output stream format to processing format.
-			if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit5, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-      if (noErr == status) {
-				status = AudioUnitSetProperty(audioUnit5, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, streamBasicDescription, sizeof(AudioStreamBasicDescription));
-			}
-        // Set audio unit render callback.
-			if (noErr == status) {
-				AURenderCallbackStruct renderCallbackStruct;
-				renderCallbackStruct.inputProc = AU_RenderCallback;
-				renderCallbackStruct.inputProcRefCon = (void *)tap;
-				status = AudioUnitSetProperty(audioUnit5, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(AURenderCallbackStruct));
-			}
-        // Set audio unit maximum frames per slice to max frames.
-			if (noErr == status) {
-				UInt64 maximumFramesPerSlice = maxFrames;
-				status = AudioUnitSetProperty(audioUnit5, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0, &maximumFramesPerSlice, (UInt32)sizeof(UInt32));
-			}
-      
-        // Set audio unit preset
-      if (noErr == status) {
-        NSURL *presetURL5 = [NSURL URLWithString:@"file:///Users/bennettslin/Documents/AudioPeeps/myPreset5.aupreset"];
-        CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit5, presetURL5);
-        
-        status = AudioUnitSetProperty(audioUnit5,
-                             kAudioUnitProperty_ClassInfo,
-                             kAudioUnitScope_Global,
-                             0,
-                             &propertyList,
-                             sizeof(CFPropertyListRef));
-        
-        CFRelease(propertyList);
-      }
-      
-        // Initialize audio unit.
-			if (noErr == status) {
-				status = AudioUnitInitialize(audioUnit5);
-			} else {
-				AudioComponentInstanceDispose(audioUnit5);
-				audioUnit5 = NULL;
-			}
-			context->audioUnit5 = audioUnit5;
-		}
-	}
+//   */
 }
 
 static void tap_UnprepareCallback(MTAudioProcessingTapRef tap) {
@@ -528,49 +259,13 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
 	
 	PSAudioTapProcessor *self = ((__bridge PSAudioTapProcessor *)context->self);
   
-	if (self.isMixInput1Enabled || self.isMixInput2Enabled || self.isMixInput3Enabled ||
-      self.isMixInput4Enabled || self.isMixInput5Enabled) {
-    if (self.isMixInput1Enabled) {
-      AudioUnit audioUnit = context->audioUnit1;
-      if (audioUnit) {
-//        NSLog(@"mix input 1 on");
-        AudioTimeStamp audioTimeStamp;
-        audioTimeStamp.mSampleTime = context->sampleCount;
-        audioTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
-        
-        status = AudioUnitRender(audioUnit, 0, &audioTimeStamp, 0, (UInt32)numberFrames, bufferListInOut);
-        if (noErr != status) {
-          NSLog(@"AudioUnitRender(): %d", (int)status);
-          return;
-        }
-          // Increment sample count for audio unit.
-        context->sampleCount += numberFrames;
-          // Set number of frames out.
-        *numberFramesOut = numberFrames;
-      }
-    }
-    if (self.isMixInput2Enabled) {
-      AudioUnit audioUnit = context->audioUnit2;
-      if (audioUnit) {
-//        NSLog(@"mix input 2 on");
-        AudioTimeStamp audioTimeStamp;
-        audioTimeStamp.mSampleTime = context->sampleCount;
-        audioTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
-        
-        status = AudioUnitRender(audioUnit, 0, &audioTimeStamp, 0, (UInt32)numberFrames, bufferListInOut);
-        if (noErr != status) {
-          NSLog(@"AudioUnitRender(): %d", (int)status);
-          return;
-        }
-          // Increment sample count for audio unit.
-        context->sampleCount += numberFrames;
-          // Set number of frames out.
-        *numberFramesOut = numberFrames;
-      }
-    }
-    if (self.isMixInput3Enabled) {
-//      NSLog(@"mix input 3 on");
-      AudioUnit audioUnit = context->audioUnit3;
+  BOOL mixInputBoolsArray[5] = {self.isMixInput1Enabled, self.isMixInput2Enabled, self.isMixInput3Enabled, self.isMixInput4Enabled, self.isMixInput5Enabled};
+  AudioUnit contextsArray[5] = {context->audioUnit1, context->audioUnit2, context->audioUnit3, context->audioUnit4, context->audioUnit5};
+  BOOL atLeastOneMixInputEnabled = NO;
+  for (int i = 0; i < 5; i++) {
+    if (mixInputBoolsArray[i]) {
+      atLeastOneMixInputEnabled = YES;
+      AudioUnit audioUnit = contextsArray[i];
       if (audioUnit) {
         AudioTimeStamp audioTimeStamp;
         audioTimeStamp.mSampleTime = context->sampleCount;
@@ -587,52 +282,16 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
         *numberFramesOut = numberFrames;
       }
     }
-    if (self.isMixInput4Enabled) {
-      AudioUnit audioUnit = context->audioUnit4;
-      if (audioUnit) {
-//        NSLog(@"mix input 4 on");
-        AudioTimeStamp audioTimeStamp;
-        audioTimeStamp.mSampleTime = context->sampleCount;
-        audioTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
-        
-        status = AudioUnitRender(audioUnit, 0, &audioTimeStamp, 0, (UInt32)numberFrames, bufferListInOut);
-        if (noErr != status) {
-          NSLog(@"AudioUnitRender(): %d", (int)status);
-          return;
-        }
-          // Increment sample count for audio unit.
-        context->sampleCount += numberFrames;
-          // Set number of frames out.
-        *numberFramesOut = numberFrames;
-      }
-    }
-    if (self.isMixInput5Enabled) {
-      AudioUnit audioUnit = context->audioUnit5;
-      if (audioUnit) {
-//        NSLog(@"mix input 5 on");
-        AudioTimeStamp audioTimeStamp;
-        audioTimeStamp.mSampleTime = context->sampleCount;
-        audioTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
-        
-        status = AudioUnitRender(audioUnit, 0, &audioTimeStamp, 0, (UInt32)numberFrames, bufferListInOut);
-        if (noErr != status) {
-          NSLog(@"AudioUnitRender(): %d", (int)status);
-          return;
-        }
-          // Increment sample count for audio unit.
-        context->sampleCount += numberFrames;
-          // Set number of frames out.
-        *numberFramesOut = numberFrames;
-      }
-    }
-	} else {
+  }
+  
+  if (!atLeastOneMixInputEnabled) {
       // Get actual audio buffers from MTAudioProcessingTap (AudioUnitRender() will fill bufferListInOut otherwise).
-		status = MTAudioProcessingTapGetSourceAudio(tap, numberFrames, bufferListInOut, flagsOut, NULL, numberFramesOut);
-		if (noErr != status) {
-			NSLog(@"MTAudioProcessingTapGetSourceAudio: %d", (int)status);
-			return;
-		}
-	}
+    status = MTAudioProcessingTapGetSourceAudio(tap, numberFrames, bufferListInOut, flagsOut, NULL, numberFramesOut);
+    if (noErr != status) {
+      NSLog(@"MTAudioProcessingTapGetSourceAudio: %d", (int)status);
+      return;
+    }
+  }
 }
 
 #pragma mark - Audio Unit callbacks

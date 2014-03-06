@@ -200,7 +200,12 @@
       break;
   }
   [self.tapProcessor flushAudioMix];
-  [self updatePlayerItem];
+//  [self updatePlayerItem];
+  
+    // can't call updatePlayerItem method here
+    // because it now reloads playerItem with composition
+  [self.playerItem setAudioMix:self.tapProcessor.audioMix];
+  [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
   completion(YES);
 }
 
@@ -238,12 +243,42 @@
 
 - (void) loadIntro:(NSURL *)introURL completion:(void(^)(BOOL success))completion
 {
-
+    
+    NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
+    
+    AVAsset * introAsset = [[AVURLAsset alloc] initWithURL:introURL options:options];
+    
+    AVAssetTrack * introAssetTrack = [[introAsset tracksWithMediaType:AVMediaTypeAudio] lastObject];
+    
+    [self.mainCompositionTrack insertEmptyTimeRange:CMTimeRangeMake(kCMTimeZero, introAssetTrack.timeRange.duration)];
+  
+    [self.troCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, introAssetTrack.timeRange.duration)
+                                       ofTrack:introAssetTrack
+                                        atTime:kCMTimeZero error:nil];
+  
+    [self updatePlayerItem];
+    self.immutableComposition = [self.composition copy];
+    [self updateObservers];
 }
 
 - (void) loadOutro:(NSURL *)outroURL completion:(void(^)(BOOL success))completion
 {
-
+    NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
+    
+    AVAsset * outroAsset = [[AVURLAsset alloc] initWithURL:outroURL options:options];
+    
+    AVAssetTrack * outroAssetTrack = [[outroAsset tracksWithMediaType:AVMediaTypeAudio] lastObject];
+      
+    [self.mainCompositionTrack insertEmptyTimeRange: CMTimeRangeMake(self.troCompositionTrack.timeRange.duration, outroAssetTrack.timeRange.duration)];
+  
+    [self.troCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero,
+                                                              outroAssetTrack.timeRange.duration)
+                                      ofTrack:outroAssetTrack
+                                       atTime:self.troCompositionTrack.timeRange.duration error:nil];
+  
+    [self updatePlayerItem];
+    self.immutableComposition = [self.composition copy];
+    [self updateObservers];
 }
 
 
