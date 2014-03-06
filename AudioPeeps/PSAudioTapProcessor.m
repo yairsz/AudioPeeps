@@ -169,8 +169,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
         
           // Set audio unit preset
         if (noErr == status) {
-          NSString *urlString = [NSString stringWithFormat:@"file:///Users/yair/Documents/AudioPeeps/%@.aupreset", [fileNamesArray objectAtIndex:i]];
-          NSURL *presetURL = [NSURL URLWithString:urlString];
+           NSURL *presetURL = [[NSBundle mainBundle] URLForResource:[fileNamesArray objectAtIndex:i] withExtension:@"aupreset"];
           CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit, presetURL);
           
           status = AudioUnitSetProperty(audioUnit,
