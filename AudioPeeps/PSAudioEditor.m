@@ -257,12 +257,20 @@
     
     AVAssetTrack * introAssetTrack = [[introAsset tracksWithMediaType:AVMediaTypeAudio] lastObject];
     
-    [self.mainCompositionTrack insertEmptyTimeRange:CMTimeRangeMake(kCMTimeZero, introAssetTrack.timeRange.duration)];
-  
-    [self.troCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, introAssetTrack.timeRange.duration)
+    
+    
+    CMTimeRange insertTimeRange = CMTimeRangeMake(kCMTimeZero,
+                                                    introAssetTrack.timeRange.duration);
+
+    [self.composition insertEmptyTimeRange:insertTimeRange];
+    [self.troInputParams setVolume:0.0 atTime:kCMTimeZero];
+    [self.troCompositionTrack insertTimeRange:insertTimeRange
                                        ofTrack:introAssetTrack
                                         atTime:kCMTimeZero error:nil];
-  
+    
+    
+    
+    NSLog(@"%@", self.troCompositionTrack);
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
@@ -277,14 +285,22 @@
     AVAsset * outroAsset = [[AVURLAsset alloc] initWithURL:outroURL options:options];
     
     AVAssetTrack * outroAssetTrack = [[outroAsset tracksWithMediaType:AVMediaTypeAudio] lastObject];
-      
-    [self.mainCompositionTrack insertEmptyTimeRange: CMTimeRangeMake(self.troCompositionTrack.timeRange.duration, outroAssetTrack.timeRange.duration)];
-  
-    [self.troCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero,
-                                                              outroAssetTrack.timeRange.duration)
+
+//    CMTime outroStart = self.composition.duration;
+//    CMTimeRange rampTimeRange = CMTimeRangeMake(self.composition.duration, kCMTimeZero);
+
+    CMTimeRange insertTimeRange = CMTimeRangeMake(kCMTimeZero, outroAsset.duration);
+
+    [self.troCompositionTrack insertTimeRange:insertTimeRange
                                       ofTrack:outroAssetTrack
-                                       atTime:self.troCompositionTrack.timeRange.duration error:nil];
-  
+                                       atTime:self.composition.duration
+                                        error:nil];
+    
+//    [self.troInputParams setVolumeRampFromStartVolume:0.0
+//                                          toEndVolume:1.0
+//                                            timeRange:rampTimeRange];
+    
+
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
@@ -293,9 +309,9 @@
 
 
 -(void)updatePlayerItem {
-  self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
-  [self.playerItem setAudioMix:self.tapProcessor.audioMix];
-  [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
+    self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
+    [self.playerItem setAudioMix:self.tapProcessor.audioMix];
+    [self.player replaceCurrentItemWithPlayerItem:self.playerItem];
 }
 
 
