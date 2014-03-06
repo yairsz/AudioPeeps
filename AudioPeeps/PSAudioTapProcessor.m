@@ -132,7 +132,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
 	}
 
   int audioUnitsArray[5] = {kAudioUnitSubType_PeakLimiter, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ, kAudioUnitSubType_NBandEQ};
-  NSArray *fileNamesArray = @[@"myPreset1", @"myPreset2", @"myPreset3", @"myPreset4", @"myPreset5"];
+  NSArray *fileNamesArray = @[@"Normalize", @"noiseReduction", @"reduceS", @"addFullness", @"addClarity"];
   
 //  /*
   for (int i = 0; i < 5; i++) {
@@ -169,7 +169,7 @@ static void tap_PrepareCallback(MTAudioProcessingTapRef tap, CMItemCount maxFram
         
           // Set audio unit preset
         if (noErr == status) {
-          NSString *urlString = [NSString stringWithFormat:@"file:///Users/bennettslin/Documents/AudioPeeps/%@.aupreset", [fileNamesArray objectAtIndex:i]];
+          NSString *urlString = [NSString stringWithFormat:@"file:///Users/yair/Documents/AudioPeeps/%@.aupreset", [fileNamesArray objectAtIndex:i]];
           NSURL *presetURL = [NSURL URLWithString:urlString];
           CFPropertyListRef propertyList = loadPresetForAudioUnit(audioUnit, presetURL);
           
