@@ -24,8 +24,8 @@
 @property (strong, nonatomic) AVComposition *immutableComposition;
 @property (strong, nonatomic) id observer;
 @property (strong, nonatomic) AVAssetTrack * originalAssetTrack;
-@property (strong, nonatomic) AVMutableCompositionTrack * mainCompositionTrack;
-@property (strong, nonatomic) AVMutableCompositionTrack * troCompositionTrack;
+@property (nonatomic) CMPersistentTrackID mainTrackID;
+@property (nonatomic) CMPersistentTrackID troTrackID;
 @property (strong, nonatomic) AVMutableAudioMixInputParameters *troInputParams;
 
 
@@ -103,17 +103,6 @@
 
 - (float) durationInSeconds {
     return self.composition.duration.value /self.composition.duration.timescale;
-}
-
-- (AVMutableCompositionTrack *) troCompositionTrack
-{
-    if (!_troCompositionTrack) {
-        _troCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-        [_troCompositionTrack insertEmptyTimeRange:CMTimeRangeMake(kCMTimeZero, self.composition.duration)];
-        self.troInputParams = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:_troCompositionTrack];
-        self.tapProcessor.audioMix.inputParameters = [self.tapProcessor.audioMix.inputParameters arrayByAddingObject:self.troInputParams];
-    }
-    return _troCompositionTrack;
 }
 
 - (void) setPlayhead:(CGFloat)playhead
@@ -231,14 +220,15 @@
     
     self.originalAssetTrack = [[self.asset tracksWithMediaType:AVMediaTypeAudio] lastObject];
     
-    self.mainCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+    AVMutableCompositionTrack * mainCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+    self.mainTrackID = mainCompositionTrack.trackID;
     
-    [self.mainCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero,
+    [mainCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero,
                                                       self.originalAssetTrack.timeRange.duration)
-                                       ofTrack:self.originalAssetTrack
-                                        atTime:kCMTimeZero error:nil];
+                                  ofTrack:self.originalAssetTrack
+                                   atTime:kCMTimeZero error:nil];
   
-  self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:self.mainCompositionTrack];
+  self.tapProcessor = [[PSAudioTapProcessor alloc] initWithTrack:mainCompositionTrack];
   self.playerItem = [AVPlayerItem playerItemWithAsset:self.composition];
   
     [self updatePlayerItem];
@@ -258,19 +248,23 @@
     AVAssetTrack * introAssetTrack = [[introAsset tracksWithMediaType:AVMediaTypeAudio] lastObject];
     
     
+    AVMutableCompositionTrack * troCompositionTrack = (AVMutableCompositionTrack *)[self.composition trackWithTrackID:self.troTrackID];
+    
+    if (!troCompositionTrack) {
+        troCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+        self.troTrackID = troCompositionTrack.trackID;
+    }
     
     CMTimeRange insertTimeRange = CMTimeRangeMake(kCMTimeZero,
                                                     introAssetTrack.timeRange.duration);
 
     [self.composition insertEmptyTimeRange:insertTimeRange];
-    [self.troInputParams setVolume:0.0 atTime:kCMTimeZero];
-    [self.troCompositionTrack insertTimeRange:insertTimeRange
-                                       ofTrack:introAssetTrack
-                                        atTime:kCMTimeZero error:nil];
     
+    [troCompositionTrack insertTimeRange:insertTimeRange
+                                 ofTrack:introAssetTrack
+                                  atTime:kCMTimeZero error:nil];
     
-    
-    NSLog(@"%@", self.troCompositionTrack);
+
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
@@ -286,21 +280,20 @@
     
     AVAssetTrack * outroAssetTrack = [[outroAsset tracksWithMediaType:AVMediaTypeAudio] lastObject];
 
-//    CMTime outroStart = self.composition.duration;
-//    CMTimeRange rampTimeRange = CMTimeRangeMake(self.composition.duration, kCMTimeZero);
+    AVMutableCompositionTrack * troCompositionTrack = (AVMutableCompositionTrack *)[self.composition trackWithTrackID:self.troTrackID];
+    
+    if (!troCompositionTrack) {
+        troCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+        self.troTrackID = troCompositionTrack.trackID;
+    }
 
     CMTimeRange insertTimeRange = CMTimeRangeMake(kCMTimeZero, outroAsset.duration);
 
-    [self.troCompositionTrack insertTimeRange:insertTimeRange
+    [troCompositionTrack insertTimeRange:insertTimeRange
                                       ofTrack:outroAssetTrack
                                        atTime:self.composition.duration
                                         error:nil];
     
-//    [self.troInputParams setVolumeRampFromStartVolume:0.0
-//                                          toEndVolume:1.0
-//                                            timeRange:rampTimeRange];
-    
-
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
@@ -327,10 +320,11 @@
 
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut
 {
+    [self.player pause];
     CMTime inTime = [self timeFromFloat:punchIn];
     CMTime outTime = [self timeFromFloat:punchOut];
     
-    [self.mainCompositionTrack removeTimeRange:CMTimeRangeMake(inTime, outTime)];
+    [self.composition removeTimeRange:CMTimeRangeMake(inTime, outTime)];
   
     self.immutableComposition = [self.composition copy];
   
@@ -340,6 +334,7 @@
 
 - (void) cutAudioFrom:(float) punchIn to:(float) punchOut
 {
+    [self.player pause];
     [self copyAudioFrom:punchIn to:punchIn];
     [self deleteAudioFrom:punchIn to:punchOut];
     
@@ -353,17 +348,19 @@
 
 - (void) pasteAudioAt: (float) time
 {
-//    if (self.copiedTimeRange.duration.value > 0.0) {
+    [self.player pause];
     NSError * error;
-        [self.mainCompositionTrack insertTimeRange:self.copiedTimeRange
-                                           ofTrack:self.originalAssetTrack
-                                            atTime:[self timeFromFloat:time]
-                                             error:&error];
-        
-        self.immutableComposition = [self.composition copy];
-//    }
-    NSLog(@"error:%@",error);
     
+    AVMutableCompositionTrack * mainCompositionTrack = (AVMutableCompositionTrack *)[self.composition trackWithTrackID:self.mainTrackID];
+    
+    [mainCompositionTrack insertTimeRange:self.copiedTimeRange
+                                ofTrack:self.originalAssetTrack
+                                atTime:[self timeFromFloat:time]
+                                error:&error];
+        
+    self.immutableComposition = [self.composition copy];
+
+    [self updateObservers];
 }
 
 
@@ -415,8 +412,6 @@
 -(void)undoLatestOperationWithCompletion:(void (^)(BOOL))completion {
     [self.undoManager undo];
     self.composition = [self.immutableComposition mutableCopy];
-    self.mainCompositionTrack = [[self.composition tracks] lastObject];
-    
     [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
     [self updateObservers];
     completion(YES);
@@ -425,7 +420,6 @@
 -(void)redoLatestUndoWithCompletion:(void (^)(BOOL))completion {
     [self.undoManager redo];
     self.composition = [self.immutableComposition mutableCopy];
-    self.mainCompositionTrack = [[self.composition tracks] lastObject];
     [self.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithAsset:self.composition]];
     [self updateObservers];
     completion(YES);
