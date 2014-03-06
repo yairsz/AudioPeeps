@@ -201,10 +201,7 @@
       
     default:
       break;
-  }
-  [self.tapProcessor flushAudioMix];
-//  [self updatePlayerItem];
-  
+  }  
     // can't call updatePlayerItem method here
     // because it now reloads playerItem with composition
   [self.playerItem setAudioMix:self.tapProcessor.audioMix];

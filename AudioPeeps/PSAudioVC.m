@@ -217,7 +217,7 @@
             
             NSURL *soundFileURL = [openDlg URL];
             
-            NSLog(@"%@", soundFileURL);
+            NSLog(@"sound file URL %@", soundFileURL);
             [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
                 [self.playButton setEnabled:YES];
                 [self.deleteSelectionButton setEnabled:YES];

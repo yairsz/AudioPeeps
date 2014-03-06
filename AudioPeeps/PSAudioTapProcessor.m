@@ -37,6 +37,7 @@ static CFPropertyListRef loadPresetForAudioUnit(AudioUnit audioUnit, NSURL *pres
 
 @interface PSAudioTapProcessor () {
 	AVMutableAudioMix *_audioMix;
+  MTAudioProcessingTapRef _tap;
 }
 @end
 
@@ -54,15 +55,10 @@ static CFPropertyListRef loadPresetForAudioUnit(AudioUnit audioUnit, NSURL *pres
 
 #pragma mark - Properties
 
--(void)flushAudioMix {
-  _audioMix = nil;
-}
-
--(AVMutableAudioMix *)audioMix {
-	if (!_audioMix) {
-		AVMutableAudioMix *audioMix = [AVMutableAudioMix new];
-    AVMutableAudioMixInputParameters *audioMixInputParameters = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:self.compositionTrack];
-    if (audioMixInputParameters) {
+-(AVMutableAudioMixInputParameters *)inputParameters {
+  if (!_inputParameters) {
+    _inputParameters = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:self.compositionTrack];
+    if (_inputParameters) {
       MTAudioProcessingTapCallbacks callbacks;
       callbacks.version = kMTAudioProcessingTapCallbacksVersion_0;
       callbacks.clientInfo = (__bridge void *)self,
@@ -73,13 +69,19 @@ static CFPropertyListRef loadPresetForAudioUnit(AudioUnit audioUnit, NSURL *pres
       callbacks.process = tap_ProcessCallback;
       MTAudioProcessingTapRef audioProcessingTap;
       if (noErr == MTAudioProcessingTapCreate(kCFAllocatorDefault, &callbacks, kMTAudioProcessingTapCreationFlag_PostEffects, &audioProcessingTap)) {
-        audioMixInputParameters.audioTapProcessor = audioProcessingTap;
+        _inputParameters.audioTapProcessor = audioProcessingTap;
         CFRelease(audioProcessingTap);
-        audioMix.inputParameters = @[audioMixInputParameters];
-        _audioMix = audioMix;
-			}
+      }
+    }
+  }
+  return _inputParameters;
+}
+
+-(AVMutableAudioMix *)audioMix {
+	if (!_audioMix) {
+		_audioMix = [AVMutableAudioMix new];
+    _audioMix.inputParameters = @[self.inputParameters];
 		}
-	}
 	return _audioMix;
 }
 
@@ -257,9 +259,10 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
 	}
 	
 	PSAudioTapProcessor *self = ((__bridge PSAudioTapProcessor *)context->self);
-  
-  BOOL mixInputBoolsArray[5] = {self.isMixInput1Enabled, self.isMixInput2Enabled, self.isMixInput3Enabled, self.isMixInput4Enabled, self.isMixInput5Enabled};
-  AudioUnit contextsArray[5] = {context->audioUnit1, context->audioUnit2, context->audioUnit3, context->audioUnit4, context->audioUnit5};
+  BOOL mixInputBoolsArray[5] = {self.isMixInput1Enabled, self.isMixInput2Enabled,
+    self.isMixInput3Enabled, self.isMixInput4Enabled, self.isMixInput5Enabled};
+  AudioUnit contextsArray[5] = {context->audioUnit1, context->audioUnit2,
+    context->audioUnit3, context->audioUnit4, context->audioUnit5};
   BOOL atLeastOneMixInputEnabled = NO;
   for (int i = 0; i < 5; i++) {
     if (mixInputBoolsArray[i]) {
@@ -282,6 +285,7 @@ static void tap_ProcessCallback(MTAudioProcessingTapRef tap, CMItemCount numberF
       }
     }
   }
+
   
   if (!atLeastOneMixInputEnabled) {
       // Get actual audio buffers from MTAudioProcessingTap (AudioUnitRender() will fill bufferListInOut otherwise).
