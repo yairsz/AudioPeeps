@@ -42,7 +42,7 @@
 @property (weak,nonatomic) IBOutlet SSDragAudioImageView * introWell;
 @property (weak,nonatomic) IBOutlet SSDragAudioImageView * outroWell;
 
-
+@property (strong, nonatomic) NSArray *metadataArray;
 
 @end
 
@@ -308,10 +308,13 @@
 
 - (IBAction)export:(id)sender {
     
-    
+    // temporarily get metadata from hard coded info
+  [self populateMetadata];
+  
     // Create the File Open Dialog class.
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
     NSInteger randomNumber = arc4random() % 1000;
+  
     NSString * fileName = [NSString stringWithFormat:@"ExportAudio-%ld%@",randomNumber,self.fileExtension];
     [saveDlg setNameFieldStringValue:fileName];
     
@@ -319,16 +322,43 @@
     // process the files.
     [saveDlg beginWithCompletionHandler:^(NSInteger result) {
         if (result == NSFileHandlingPanelOKButton) {
-
+          
             NSURL * URL = [saveDlg URL];
             self.audioExporter = [[PSAudioExporter alloc] initWithAsset:self.audioEditor.composition
                                                                  andURL:URL
                                                             andFileType:self.fileType
-                                                            andAudioMix:self.audioEditor.audioMix];
+                                                            andAudioMix:self.audioEditor.audioMix
+                                                       andMetadataArray:self.metadataArray];
         } else {
             return;
         }
     }];
+}
+
+-(void)populateMetadata {
+
+  AVMutableMetadataItem *artistItem = [AVMutableMetadataItem metadataItem];
+  AVMutableMetadataItem *albumItem = [AVMutableMetadataItem metadataItem];
+  AVMutableMetadataItem *titleItem = [AVMutableMetadataItem metadataItem];
+  
+  artistItem.keySpace = AVMetadataKeySpaceCommon;
+  albumItem.keySpace = AVMetadataKeySpaceCommon;
+  titleItem.keySpace = AVMetadataKeySpaceCommon;
+  
+  artistItem.key = AVMetadataCommonKeyArtist;
+  albumItem.key = AVMetadataCommonKeyAlbumName;
+  titleItem.key = AVMetadataCommonKeyTitle;
+  
+  artistItem.value = @"Mr. Podcaster";
+  albumItem.value = @"My podcast album";
+  titleItem.value = @"Podcast numero uno";
+  
+  NSMutableArray *tempArray = [NSMutableArray new];
+  [tempArray addObject:artistItem];
+  [tempArray addObject:albumItem];
+  [tempArray addObject:titleItem];
+  self.metadataArray = [NSArray arrayWithArray:tempArray];
+  
 }
 
 #pragma mark - undo and redo methods

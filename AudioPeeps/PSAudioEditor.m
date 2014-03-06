@@ -221,7 +221,7 @@
     NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
     
     self.asset = [[AVURLAsset alloc] initWithURL:fileURL options:options];
-    
+  
     self.originalAssetTrack = [[self.asset tracksWithMediaType:AVMediaTypeAudio] lastObject];
     
     AVMutableCompositionTrack * mainCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
