@@ -11,8 +11,16 @@
 #import <CoreMedia/CoreMedia.h>
 #import <AppKit/AppKit.h>
 #import "SSDragAudioImageView.h"
+#import "PSAudioEditor.h"
+#import "PSAudioExporter.h"
 
 @interface PSAudioVC : NSViewController <SSDragAudioImageViewDraggingDelegate>
+
+@property (strong, nonatomic) PSAudioEditor * audioEditor;
+@property (strong, nonatomic) PSAudioExporter * audioExporter;
+@property (strong,nonatomic) NSString * fileType;
+@property (strong,nonatomic) NSString * fileExtension;
+
 
 -(IBAction)redoLastUndo:(id)sender;
 -(IBAction)undoLastChange:(id)sender;

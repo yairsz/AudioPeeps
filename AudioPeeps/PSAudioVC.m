@@ -7,8 +7,7 @@
 //
 
 #import "PSAudioVC.h"
-#import "PSAudioEditor.h"
-#import "PSAudioExporter.h"
+
 #import "Constants.h"
 
 #define AVAILABLE_FORMATS @[@"M4A",@"AIFF",@"WAVE"]
@@ -43,10 +42,6 @@
 @property (weak,nonatomic) IBOutlet SSDragAudioImageView * introWell;
 @property (weak,nonatomic) IBOutlet SSDragAudioImageView * outroWell;
 
-@property (strong, nonatomic) PSAudioEditor * audioEditor;
-@property (strong, nonatomic) PSAudioExporter * audioExporter;
-@property (strong,nonatomic) NSString * fileType;
-@property (strong,nonatomic) NSString * fileExtension;
 
 
 @end
@@ -329,8 +324,6 @@
             self.audioExporter = [[PSAudioExporter alloc] initWithAsset:self.audioEditor.composition
                                                                  andURL:URL
                                                             andFileType:self.fileType];
-            
-            
         } else {
             return;
         }
@@ -423,14 +416,19 @@
 
 - (BOOL) didDropFile:(id<NSDraggingInfo>)sender
 {
+    NSPasteboardItem *draggedItem = [[[sender draggingPasteboard] pasteboardItems] objectAtIndex:0];
+    NSString *type = [draggedItem types][0];
+    NSURL * fileURL = [NSURL URLWithString:[draggedItem stringForType:type]];
     
     NSPoint dragPoint =[sender draggingLocation];
     if (dragPoint.x < self.view.frame.size.width/2) {
-//        NSLog(@"%@",@"Intro");
-        
-        
+        [self.audioEditor loadIntro:fileURL completion:^(BOOL success) {
+            [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+        }];
     } else {
-//        NSLog(@"%@",@"Outro");
+        [self.audioEditor loadOutro:fileURL completion:^(BOOL success) {
+            [self.durationTextField setStringValue:[self.audioEditor fileDuration]];
+        }];
     }
     return YES;
     
