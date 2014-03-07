@@ -285,7 +285,7 @@
     self.mainTrackEnd = CMTimeAdd(self.mainTrackEnd, introAssetTrack.timeRange.duration);
 
     for (AVMutableCompositionTrack * track in self.composition.tracks) {
-        NSLog(@"\n\n before \n\n%@",track.segments);
+        NSLog(@"\n\n after load intro \n\n%@",track.segments);
     }
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
@@ -316,6 +316,10 @@
                                        atTime:self.composition.duration
                                         error:nil];
     
+    for (AVMutableCompositionTrack * track in self.composition.tracks) {
+        NSLog(@"\n\n after load outro \n\n%@",track.segments);
+    }
+    
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
@@ -344,21 +348,28 @@
 {
     [self pause];
     
-    for (AVMutableCompositionTrack * track in self.composition.tracks) {
-        NSLog(@"\n\n before \n\n%@",track.segments);
-    }
+//    for (AVMutableCompositionTrack * track in self.composition.tracks) {
+//        NSLog(@"\n\n before delete \n\n%@",track.segments);
+//    }
     CMTime inTime = [self timeFromFloat:punchIn];
     CMTime outTime = [self timeFromFloat:punchOut];
     NSLog(@"\nin:       %f\nout:     %f\ncomposition:%f",CMTimeGetSeconds(inTime),CMTimeGetSeconds(outTime),CMTimeGetSeconds(self.composition.duration) );
-
-    [self.composition removeTimeRange:CMTimeRangeMake(inTime, outTime)];
+    NSLog(@"\n\nin Time timescale:%d\nin Time value:%lld",inTime.timescale,
+          inTime.value);
+    NSLog(@"\n\nout Time timescale:%d\nout Time value:%lld",outTime.timescale,
+          outTime.value);
+    
+    CMTimeRange timeRangeToremove = CMTimeRangeMake(inTime, outTime);
+    
+    [self.composition removeTimeRange:timeRangeToremove];
   
-    NSLog(@"\n cut composition:%f",CMTimeGetSeconds(self.composition.duration) );
+    NSLog(@"\ncomposition timescale:%d,composition value:%lld",self.composition.duration.timescale,
+          self.composition.duration.value);
     self.immutableComposition = [self.composition copy];
   
-    for (AVMutableCompositionTrack * track in self.composition.tracks) {
-        NSLog(@"\n\n after \n\n%@",track.segments);
-    }
+//    for (AVMutableCompositionTrack * track in self.composition.tracks) {
+//        NSLog(@"\n\n after delete \n\n%@",track.segments);
+//    }
     [self updateObservers];
 }
 
@@ -445,16 +456,7 @@
     CMTime timeRelativeToMainTrack = CMTimeMultiplyByFloat64(self.mainTrackDuration,number);
     CMTime timeWithOffset = CMTimeAdd(timeRelativeToMainTrack,self.mainTrackStart);
     
-    
-//    NSLog(@"Composition Duration %f\nmain duration %f\nmain start %f\nmain end %f\ntime relative to main %f\ntime with offset %f",
-//          CMTimeGetSeconds(self.composition.duration),
-//          CMTimeGetSeconds(self.mainTrackDuration),
-//          CMTimeGetSeconds(self.mainTrackStart),
-//          CMTimeGetSeconds(self.mainTrackEnd),
-//          CMTimeGetSeconds(timeRelativeToMainTrack),
-//          CMTimeGetSeconds(timeWithOffset));
-    
-    
+    NSLog(@"%f,%f",number, CMTimeGetSeconds(timeWithOffset));
     return timeWithOffset;
 }
 
