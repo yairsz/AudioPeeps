@@ -201,10 +201,7 @@
       
     default:
       break;
-  }
-  [self.tapProcessor flushAudioMix];
-//  [self updatePlayerItem];
-  
+  }  
     // can't call updatePlayerItem method here
     // because it now reloads playerItem with composition
   [self.playerItem setAudioMix:self.tapProcessor.audioMix];
@@ -224,7 +221,7 @@
     NSDictionary *options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
     
     self.asset = [[AVURLAsset alloc] initWithURL:fileURL options:options];
-    
+  
     self.originalAssetTrack = [[self.asset tracksWithMediaType:AVMediaTypeAudio] lastObject];
     
     AVMutableCompositionTrack * mainCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];

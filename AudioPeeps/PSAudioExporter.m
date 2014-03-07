@@ -24,6 +24,8 @@
 @property (strong, nonatomic) AVAudioMix * audioMix;
 @property (strong, nonatomic) NSNumber * formatIDKey;
 
+@property (strong, nonatomic) NSArray *metadataArray;
+
 @property (strong, nonatomic) AVAsset * asset;
 @property (strong,nonatomic) NSString * fileType;
 @property (strong,nonatomic) NSMutableDictionary * settingsDict;
@@ -32,10 +34,11 @@
 
 @implementation PSAudioExporter
 
-- (PSAudioExporter *) initWithAsset: (AVAsset *) asset andURL: (NSURL *) outputURL andFileType: (NSString *) fileType andAudioMix:(AVAudioMix *)audioMix
+- (PSAudioExporter *) initWithAsset: (AVAsset *) asset andURL: (NSURL *) outputURL andFileType: (NSString *) fileType andAudioMix:(AVAudioMix *)audioMix andMetadataArray:(NSArray *)metadataArray
 {
     if (self = [super init]) {
         self.audioMix = audioMix;
+      self.metadataArray = metadataArray;
     NSString *serializationQueueDescription = [NSString stringWithFormat:@"%@ serialization queue", self];
     // Create the main serialization queue.
     self.mainSerializationQueue = dispatch_queue_create([serializationQueueDescription UTF8String], NULL);
@@ -81,8 +84,6 @@
     return self;
 }
 
-
-
 - (BOOL)setupAssetReaderAndAssetWriter:(NSError **)outError
 {
     // Create and initialize the asset reader.
@@ -92,6 +93,9 @@
     {
         // If the asset reader was successfully initialized, do the same for the asset writer.
         self.assetWriter = [[AVAssetWriter alloc] initWithURL:self.outputURL fileType:self.fileType error:outError];
+      
+      self.assetWriter.metadata = self.metadataArray;
+      
         success = (self.assetWriter != nil);
     }
     

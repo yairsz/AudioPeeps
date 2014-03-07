@@ -42,7 +42,7 @@
 @property (weak,nonatomic) IBOutlet SSDragAudioImageView * introWell;
 @property (weak,nonatomic) IBOutlet SSDragAudioImageView * outroWell;
 
-
+@property (strong, nonatomic) NSArray *metadataArray;
 
 @end
 
@@ -217,7 +217,7 @@
             
             NSURL *soundFileURL = [openDlg URL];
             
-            NSLog(@"%@", soundFileURL);
+            NSLog(@"sound file URL %@", soundFileURL);
             [self.audioEditor loadFile:soundFileURL completion:^(BOOL success) {
                 [self.playButton setEnabled:YES];
                 [self.deleteSelectionButton setEnabled:YES];
@@ -307,28 +307,63 @@
 }
 
 - (IBAction)export:(id)sender {
-    
-    
     // Create the File Open Dialog class.
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
     NSInteger randomNumber = arc4random() % 1000;
-    NSString * fileName = [NSString stringWithFormat:@"ExportAudio-%ld%@",randomNumber,self.fileExtension];
+  
+    // temporarily get metadata from hard coded info
+  [self populateMetadata];
+  
+  NSString *podcastName;
+  for (AVMutableMetadataItem *thisItem in self.metadataArray) {
+    if (thisItem.key == AVMetadataCommonKeyTitle) {
+      podcastName = (NSString *)thisItem.value;
+    }
+  }
+  
+    NSString * fileName = [NSString stringWithFormat:@"%@-%ld%@", podcastName, randomNumber,self.fileExtension];
+  
     [saveDlg setNameFieldStringValue:fileName];
     
     // Display the dialog.  If the OK button was pressed,
     // process the files.
     [saveDlg beginWithCompletionHandler:^(NSInteger result) {
         if (result == NSFileHandlingPanelOKButton) {
-
+          
             NSURL * URL = [saveDlg URL];
             self.audioExporter = [[PSAudioExporter alloc] initWithAsset:self.audioEditor.composition
                                                                  andURL:URL
                                                             andFileType:self.fileType
-                                                            andAudioMix:self.audioEditor.audioMix];
+                                                            andAudioMix:self.audioEditor.audioMix
+                                                       andMetadataArray:self.metadataArray];
         } else {
             return;
         }
     }];
+}
+
+-(void)populateMetadata {
+  AVMutableMetadataItem *artistItem = [AVMutableMetadataItem metadataItem];
+  AVMutableMetadataItem *albumItem = [AVMutableMetadataItem metadataItem];
+  AVMutableMetadataItem *titleItem = [AVMutableMetadataItem metadataItem];
+  
+  artistItem.keySpace = AVMetadataKeySpaceCommon;
+  albumItem.keySpace = AVMetadataKeySpaceCommon;
+  titleItem.keySpace = AVMetadataKeySpaceCommon;
+  
+  artistItem.key = AVMetadataCommonKeyArtist;
+  albumItem.key = AVMetadataCommonKeyAlbumName;
+  titleItem.key = AVMetadataCommonKeyTitle;
+  
+  artistItem.value = @"Mr. Podcaster";
+  albumItem.value = @"My podcast album";
+  titleItem.value = @"Mr. Podcaster's podcast";
+  
+  NSMutableArray *tempArray = [NSMutableArray new];
+  [tempArray addObject:artistItem];
+  [tempArray addObject:albumItem];
+  [tempArray addObject:titleItem];
+  self.metadataArray = [NSArray arrayWithArray:tempArray];
 }
 
 #pragma mark - undo and redo methods

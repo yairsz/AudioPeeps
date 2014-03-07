@@ -15,7 +15,8 @@
 - (PSAudioExporter *) initWithAsset: (AVAsset *) asset
                              andURL: (NSURL *) outputURL
                         andFileType: (NSString *) fileType
-                        andAudioMix: (AVAudioMix *) audioMix;
+                        andAudioMix: (AVAudioMix *) audioMix
+                   andMetadataArray: (NSArray *)metadataArray;
 - (void)cancel;
 
 @end
