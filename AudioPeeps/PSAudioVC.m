@@ -79,7 +79,7 @@
     
     self.audioPlayerState = kAudioPlayerNoFile;
     [self updatePlayerButtonStatus];
-  [self updateMixInputButtons];
+    [self updateMixInputButtons];
     [self updateUndoAndRedoStatus];
     
 }
@@ -93,22 +93,6 @@
     return _audioEditor;
 }
 
--(void)mixButtonsEnabled:(BOOL)enabler {
-  if (enabler == YES) {
-    [self.mixInput1 setEnabled:YES];
-    [self.mixInput2 setEnabled:YES];
-    [self.mixInput3 setEnabled:YES];
-    [self.mixInput4 setEnabled:YES];
-    [self.mixInput5 setEnabled:YES];
-  } else {
-    [self.mixInput1 setEnabled:NO];
-    [self.mixInput2 setEnabled:NO];
-    [self.mixInput3 setEnabled:NO];
-    [self.mixInput4 setEnabled:NO];
-    [self.mixInput5 setEnabled:NO];
-  }
-}
-
 -(void)updatePlayerButtonStatus {
     
   switch (self.audioPlayerState) {
@@ -118,7 +102,7 @@
       [self.stopButton setEnabled:NO];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
-      [self mixButtonsEnabled:NO];
+      [self setMixButtonsEnabled:NO];
       break;
     case kAudioPlayerStopped:
       [self.playButton setEnabled:YES];
@@ -126,7 +110,7 @@
       [self.stopButton setEnabled:NO];
       [self.deleteSelectionButton setEnabled:YES];
       [self.exportButton setEnabled:YES];
-      [self mixButtonsEnabled:YES];
+      [self setMixButtonsEnabled:YES];
       break;
     case kAudioPlayerPlaying:
       [self.playButton setEnabled:YES];
@@ -134,7 +118,7 @@
       [self.stopButton setEnabled:YES];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:NO];
-      [self mixButtonsEnabled:YES];
+      [self setMixButtonsEnabled:YES];
       break;
     case kAudioPlayerPaused:
       [self.playButton setEnabled:YES];
@@ -142,7 +126,7 @@
       [self.stopButton setEnabled:YES];
       [self.deleteSelectionButton setEnabled:NO];
       [self.exportButton setEnabled:YES];
-      [self mixButtonsEnabled:YES];
+      [self setMixButtonsEnabled:YES];
       break;
   }
 }

@@ -18,8 +18,9 @@
 
 @property (strong, nonatomic) PSAudioEditor * audioEditor;
 @property (strong, nonatomic) PSAudioExporter * audioExporter;
-@property (strong,nonatomic) NSString * fileType;
-@property (strong,nonatomic) NSString * fileExtension;
+@property (strong, nonatomic) NSString * fileType;
+@property (strong, nonatomic) NSString * fileExtension;
+@property (nonatomic) BOOL mixButtonsEnabled;
 
 
 -(IBAction)redoLastUndo:(id)sender;
