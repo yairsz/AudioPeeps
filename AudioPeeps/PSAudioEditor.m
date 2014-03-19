@@ -260,13 +260,6 @@
     if (!troCompositionTrack) {
         troCompositionTrack = [self.composition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
         self.troTrackID = troCompositionTrack.trackID;
-        NSURL * URLforSilence = [[NSBundle mainBundle] URLForResource:@"1minSilence" withExtension:@"aif"];
-        AVURLAsset * silence = [[AVURLAsset alloc] initWithURL:URLforSilence options:options];
-        AVAssetTrack *silenceTrack = [[silence tracksWithMediaType:AVMediaTypeAudio] lastObject];
-        [troCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, self.composition.duration)
-                                     ofTrack:silenceTrack
-                                      atTime:kCMTimeZero
-                                       error:nil];
     }
     
     CMTimeRange insertTimeRange = CMTimeRangeMake(kCMTimeZero,
@@ -280,10 +273,7 @@
     
     self.mainTrackStart = introAssetTrack.timeRange.duration;
     self.mainTrackEnd = CMTimeAdd(self.mainTrackEnd, introAssetTrack.timeRange.duration);
-
-    for (AVMutableCompositionTrack * track in self.composition.tracks) {
-        NSLog(@"\n\n before \n\n%@",track.segments);
-    }
+    
     [self updatePlayerItem];
     self.immutableComposition = [self.composition copy];
     [self updateObservers];
@@ -348,7 +338,7 @@
     CMTime outTime = [self timeFromFloat:punchOut];
     NSLog(@"\nin:       %f\nout:     %f\ncomposition:%f",CMTimeGetSeconds(inTime),CMTimeGetSeconds(outTime),CMTimeGetSeconds(self.composition.duration) );
 
-    [self.composition removeTimeRange:CMTimeRangeMake(inTime, outTime)];
+    [self.composition removeTimeRange:CMTimeRangeFromTimeToTime(inTime, outTime)];
   
     NSLog(@"\n cut composition:%f",CMTimeGetSeconds(self.composition.duration) );
     self.immutableComposition = [self.composition copy];
@@ -373,8 +363,7 @@
     CMTime inTime = [self timeFromFloat:punchIn];
     CMTime outTime = [self timeFromFloat:punchOut];
     
-    self.copiedTimeRange = CMTimeRangeMake(inTime,
-                                           outTime);
+    self.copiedTimeRange = CMTimeRangeFromTimeToTime(inTime,outTime);
 }
 
 - (void) pasteAudioAt: (float) time
@@ -386,7 +375,7 @@
     
     AVMutableCompositionTrack * mainCompositionTrack = (AVMutableCompositionTrack *)[self.composition trackWithTrackID:self.mainTrackID];
     
-    [self.composition insertEmptyTimeRange:self.copiedTimeRange];
+//    [self.composition insertEmptyTimeRange:self.copiedTimeRange];
     
     [mainCompositionTrack insertTimeRange:self.copiedTimeRange
                                 ofTrack:self.originalAssetTrack
