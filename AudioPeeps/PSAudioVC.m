@@ -422,6 +422,10 @@
     }
 }
 
+- (void) didFinishEdit:(NSArray *)segmentPairs {
+    NSLog(@"%@",segmentPairs);
+}
+
 - (NSString *) docsPath
 {
     NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);

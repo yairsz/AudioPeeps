@@ -11,8 +11,8 @@
 
 @protocol PSAudioEditorDelegate <NSObject>
 
-@optional
 - (void) updateCurrentTime: (NSString *) currentTime andFloat: (float) value;
+- (void) didFinishEdit: (NSArray *) segmentPairs; //of NSNumber;
 - (void) playerDidFinishPLaying;
 
 @end
@@ -37,6 +37,9 @@
 @property (nonatomic) CMTimeRange copiedTimeRange;
 
 
+@property (strong,nonatomic) NSArray * currentSegments; //referenced to the source file
+
+
 //Transport
 - (void) play;
 - (void) pause;
@@ -45,12 +48,10 @@
 - (BOOL) isPlaying;
 
 //Edit
-
 - (void) cutAudioFrom:(float) punchIn to:(float) punchOut;
 - (void) copyAudioFrom:(float) punchIn to:(float) punchOut;
 - (void) pasteAudioAt: (float) time;
 - (void) deleteAudioFrom:(float) punchIn to:(float) punchOut;
-
 
 
 //File

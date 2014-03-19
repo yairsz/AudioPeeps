@@ -10,7 +10,7 @@
 #import "PSAudioTapProcessor.h"
 #import "Constants.h"
 
-@interface PSAudioEditor() <PSAudioEditorDelegate>
+@interface PSAudioEditor() 
 {
     NSURL * soundFileURL;
     
@@ -105,7 +105,7 @@
 }
 
 - (float) durationInSeconds {
-    return self.composition.duration.value /self.composition.duration.timescale;
+    return CMTimeGetSeconds(self.composition.duration);
 }
 
 - (void) setPlayhead:(CGFloat)playhead
@@ -118,11 +118,26 @@
     return self.playerItem.audioMix;
 }
 
+- (NSArray *) currentSegments
+{
+    AVAssetTrack * mainCompositionTrack = [self.composition trackWithTrackID:self.mainTrackID];
+    NSMutableArray * segmentsArray = [NSMutableArray new];
+    for (AVCompositionTrackSegment * segment in mainCompositionTrack.segments) {
+        CMTimeRange sourceRange = segment.timeMapping.source;
+        float startSec = CMTimeGetSeconds(sourceRange.start);
+        float durationSec = CMTimeGetSeconds(sourceRange.duration);
+        float originalDuration = CMTimeGetSeconds(self.originalAssetTrack.timeRange.duration);
+        [segmentsArray addObject:@[[NSNumber numberWithFloat:startSec/originalDuration],
+                                   [NSNumber numberWithFloat:durationSec/originalDuration]]];
+    }
+    
+    return [segmentsArray copy];
+}
+
 #pragma mark - Transport Methods
 
 - (void) play
 {
-    
    [self.player play]; 
 }
 
@@ -331,22 +346,13 @@
 {
     [self pause];
     
-    for (AVMutableCompositionTrack * track in self.composition.tracks) {
-        NSLog(@"\n\n before \n\n%@",track.segments);
-    }
     CMTime inTime = [self timeFromFloat:punchIn];
     CMTime outTime = [self timeFromFloat:punchOut];
-    NSLog(@"\nin:       %f\nout:     %f\ncomposition:%f",CMTimeGetSeconds(inTime),CMTimeGetSeconds(outTime),CMTimeGetSeconds(self.composition.duration) );
 
     [self.composition removeTimeRange:CMTimeRangeFromTimeToTime(inTime, outTime)];
-  
-    NSLog(@"\n cut composition:%f",CMTimeGetSeconds(self.composition.duration) );
-    self.immutableComposition = [self.composition copy];
-  
-    for (AVMutableCompositionTrack * track in self.composition.tracks) {
-        NSLog(@"\n\n after \n\n%@",track.segments);
-    }
+
     [self updateObservers];
+    [self.delegate didFinishEdit:self.currentSegments];
 }
 
 
@@ -356,6 +362,7 @@
     [self copyAudioFrom:punchIn to:punchIn];
     [self deleteAudioFrom:punchIn to:punchOut];
     
+    
 }
 
 - (void) copyAudioFrom:(float) punchIn to:(float) punchOut
@@ -364,6 +371,7 @@
     CMTime outTime = [self timeFromFloat:punchOut];
     
     self.copiedTimeRange = CMTimeRangeFromTimeToTime(inTime,outTime);
+    
 }
 
 - (void) pasteAudioAt: (float) time
@@ -375,8 +383,6 @@
     
     AVMutableCompositionTrack * mainCompositionTrack = (AVMutableCompositionTrack *)[self.composition trackWithTrackID:self.mainTrackID];
     
-//    [self.composition insertEmptyTimeRange:self.copiedTimeRange];
-    
     [mainCompositionTrack insertTimeRange:self.copiedTimeRange
                                 ofTrack:self.originalAssetTrack
                                 atTime:mainTime
@@ -385,6 +391,7 @@
     self.immutableComposition = [self.composition copy];
 
     [self updateObservers];
+    [self.delegate didFinishEdit:self.currentSegments];
 }
 
 
@@ -430,19 +437,11 @@
 {
     CMTime timeRelativeToMainTrack = CMTimeMultiplyByFloat64(self.mainTrackDuration,number);
     CMTime timeWithOffset = CMTimeAdd(timeRelativeToMainTrack,self.mainTrackStart);
-    
-    
-//    NSLog(@"Composition Duration %f\nmain duration %f\nmain start %f\nmain end %f\ntime relative to main %f\ntime with offset %f",
-//          CMTimeGetSeconds(self.composition.duration),
-//          CMTimeGetSeconds(self.mainTrackDuration),
-//          CMTimeGetSeconds(self.mainTrackStart),
-//          CMTimeGetSeconds(self.mainTrackEnd),
-//          CMTimeGetSeconds(timeRelativeToMainTrack),
-//          CMTimeGetSeconds(timeWithOffset));
-    
-    
+       
     return timeWithOffset;
 }
+
+
 
 #pragma mark - undo methods
 
